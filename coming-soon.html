@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LINKAR — Coming soon</title>
+<meta name="description" content="لينكار — قريباً. سجّل اهتمامك واحصل على خصم حصري عند إطلاق لينكار.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="img/linkar_mark.png">
+<style>
+  /* Built 1:1 from "Landing Page.pdf": desktop artboard 1366×768, mobile artboard 375×812 (1125×2436 @3x).
+     All positions below are the artboard coordinates from the design file. */
+  @font-face { font-family: "Kufi"; src: url("fonts/NotoKufiArabic-Light.ttf") format("truetype"); font-weight: 300; font-display: swap; }
+  @font-face { font-family: "Kufi"; src: url("fonts/NotoKufiArabic-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Kufi"; src: url("fonts/NotoKufiArabic-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "Kufi"; src: url("fonts/NotoKufiArabic-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+
+  :root {
+    --green: #abf907;
+    --ph: #bdbec0;
+    --stroke: #818385;
+    --aw: 1366; --ah: 768;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Kufi", sans-serif; color: #fff; overflow: hidden;
+    background: #000;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* the artboard is scaled to fit the screen, exactly like the design */
+  .stage { position: fixed; inset: 0; display: grid; place-items: center; }
+  .board {
+    position: relative; flex: none;
+    width: calc(var(--aw) * 1px); height: calc(var(--ah) * 1px);
+    transform: scale(var(--s, 1)); transform-origin: center;
+    /* glow measured from the design file (circle, r = 545 on the 1366 artboard) */
+    background: radial-gradient(circle 545px at 50% 50%, #142834 0%, #142733 27.5%, #132530 41.7%, #10212a 55.6%, #0d1a22 69.5%, #081116 83.5%, #020506 97.4%, #000 100%);
+  }
+  .abs { position: absolute; white-space: nowrap; }
+
+  .logo { left: 124px; top: 77px; width: 235px; height: 32px; }
+  .soon { left: 117px; top: 232px; height: 127px; line-height: 127px; font-size: 58.3px; font-weight: 700; color: var(--green); direction: ltr; }
+
+  .col { position: absolute; left: 795px; top: 249px; width: 331px; }
+  .col h1 { font-size: 27.7px; font-weight: 400; height: 45px; line-height: 61px; text-align: center; }
+  .col .sub { font-size: 18.5px; height: 57px; line-height: 45px; text-align: center; }
+  .col h1, .col .sub { white-space: nowrap; margin-inline: -40px; }  /* design keeps each on one line */
+  form { display: grid; gap: 13.5px; }
+  input, .btn {
+    display: block; width: 331px; height: 37px; border-radius: 5px;
+    border: .36px solid var(--stroke); font-family: inherit;
+  }
+  input { background: #fff; color: #111; font-size: 13.8px; font-weight: 300; padding: 0 8px; text-align: right; outline: none; }
+  input::placeholder { color: var(--ph); opacity: 1; }
+  input:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(171,249,7,.35); }
+  input.bad { border-color: #ff4d4d; box-shadow: 0 0 0 2px rgba(255,77,77,.3); }
+  .btn { background: var(--green); color: #000; font-size: 18.5px; font-weight: 600; line-height: 1; cursor: pointer; }
+  .btn:hover { filter: brightness(1.06); }
+  .foot { display: flex; justify-content: space-between; align-items: center; height: 29px; margin-top: 10px; width: 336px; font-size: 13.5px; }
+  .foot a { color: var(--green); cursor: pointer; text-decoration: none; }
+  .foot span { direction: ltr; }
+  .is-provider form { gap: 11.6px; }
+  .m .is-provider form { gap: 8.4px; }
+  .provider-only { display: none; }
+  .is-provider .provider-only { display: block; }
+  .is-provider .customer-only { display: none; }
+  .done { display: none; text-align: center; padding-top: 40px; font-size: 18.5px; }
+  .done b { display: block; color: var(--green); font-size: 27.7px; font-weight: 400; margin-bottom: 6px; }
+  .ok form, .ok .foot a { display: none; }
+  .ok .done { display: block; }
+
+  /* ---------- mobile artboard (375 × 812) ---------- */
+  .m .board { --aw: 375; --ah: 812;
+    background: radial-gradient(ellipse 338px 270px at 50% 50%, #142834 0%, #142733 28%, #132631 35%, #11222c 49%, #0e1c24 58%, #091217 76%, #010304 95%, #000 100%); }
+  .m .logo { left: 102px; top: 110.7px; width: 170.7px; height: 23.3px; }
+  .m .soon { left: 0; right: 0; top: 214.7px; height: 68.3px; line-height: 68.3px; font-size: 31.5px; text-align: center; }
+  .m .col { left: 67.7px; top: 337px; width: 240px; }
+  .m .col h1 { font-size: 20px; height: 32.3px; line-height: 44px; }
+  .m .col .sub { font-size: 13.4px; height: 41px; line-height: 32.7px; }
+  .m form { gap: 9.8px; }
+  .m input, .m .btn { width: 240px; height: 26.7px; border-radius: 3.6px; }
+  .m input { font-size: 10px; padding: 0 5.7px; }
+  .m .btn { font-size: 13.4px; }
+  .m .foot { width: 240px; height: 21.3px; margin-top: 5.7px; font-size: 9.8px; justify-content: flex-start; }
+  /* "Linkar 2026" sits at the bottom of the mobile artboard (y 752.7); .col starts at 337, x 67.7 */
+  .m .foot span { position: absolute; left: -67.7px; width: 375px; top: 415.7px; text-align: center; }
+  .m .done { font-size: 13.4px; padding-top: 24px; }
+  .m .done b { font-size: 20px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="board" id="board">
+    <img class="abs logo" src="img/linkar_logo_design.png" alt="LINKAR">
+    <div class="abs soon">Coming soon...</div>
+
+    <div class="col" id="card">
+      <h1>سجّل اهتمامك</h1>
+      <p class="sub customer-only">واحصل على خصم حصري عند إطلاق لينكار</p>
+      <p class="sub provider-only">وكن من شركاء لينكار الاستراتيجيين</p>
+      <form id="form" novalidate>
+        <input name="name" class="customer-only" placeholder="الاسم" autocomplete="name">
+        <input name="fullName" class="provider-only" placeholder="الاسم والكنية" autocomplete="name">
+        <input name="company" class="provider-only" placeholder="اسم الشركة / العلامة التجارية" autocomplete="organization">
+        <input name="phone" type="tel" inputmode="tel" placeholder="رقم الموبايل" autocomplete="tel">
+        <input name="email" type="email" placeholder="البريد الإلكتروني" autocomplete="email">
+        <button class="btn" type="submit">سجل الآن</button>
+      </form>
+      <div class="done"><b>تم تسجيلك بنجاح</b><span id="doneMsg"></span></div>
+      <div class="foot">
+        <a id="switch">سجل كمزود خدمة</a>
+        <span>Linkar 2026</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const board = document.getElementById('board'), card = document.getElementById('card');
+  const form = document.getElementById('form'), sw = document.getElementById('switch');
+
+  // pick the desktop or mobile artboard and scale it to fit the screen
+  function fit() {
+    const w = innerWidth, h = innerHeight, mobile = w / h < .8;
+    document.body.classList.toggle('m', mobile);
+    const aw = mobile ? 375 : 1366, ah = mobile ? 812 : 768;
+    board.style.setProperty('--s', Math.min(w / aw, h / ah));
+  }
+  addEventListener('resize', fit); fit();
+
+  let provider = false;
+  sw.addEventListener('click', () => {
+    provider = !provider;
+    card.classList.toggle('is-provider', provider);
+    sw.textContent = provider ? 'سجل كعميل' : 'سجل كمزود خدمة';
+    form.querySelectorAll('input').forEach(i => i.classList.remove('bad'));
+  });
+
+  const rules = {
+    name: v => v.trim().length > 1, fullName: v => v.trim().length > 1, company: v => v.trim().length > 1,
+    phone: v => /^\+?[0-9\s]{9,15}$/.test(v.trim()), email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
+  };
+  // Set to the backend URL (e.g. the SoonPage ASP.NET app) to store sign-ups; empty = demo only.
+  const ENDPOINT = '';
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const inputs = [...form.querySelectorAll('input')].filter(i => i.offsetParent !== null);
+    let first = null;
+    inputs.forEach(i => { const bad = !rules[i.name](i.value); i.classList.toggle('bad', bad); if (bad && !first) first = i; });
+    if (first) { first.focus(); return; }
+    const data = Object.fromEntries(inputs.map(i => [i.name, i.value.trim()]));
+    data.type = provider ? 'provider' : 'customer';
+    if (ENDPOINT) {
+      try { await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); }
+      catch (err) { console.error(err); }
+    }
+    document.getElementById('doneMsg').textContent = provider ? 'سيتواصل معك فريق لينكار قريباً' : 'سنرسل لك الخصم الحصري عند الإطلاق';
+    card.classList.add('ok');
+  });
+  form.addEventListener('input', e => e.target.classList.remove('bad'));
+})();
+</script>
+</body>
+</html>

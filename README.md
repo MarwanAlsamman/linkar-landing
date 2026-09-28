@@ -4,6 +4,7 @@ Static pages for the LINKAR car-care marketplace launch (no build step).
 
 | Page | What it is |
 |---|---|
+| `coming-soon.html` | Exact build of the "Landing Page.pdf" design only (desktop + mobile, customer / service-provider form) |
 | `index.html` | First version — 2D, Arabic, scroll-driven PPF wrap |
 | `index-3d.html` | 3D studio, scroll story: every scroll plays one full service scene (wash, polish, PPF, ceramic, tires, maintenance, interior, window film, wrap) |
 | `index-3d-play.html` | Same 3D studio without the scroll story — scenes auto-play, with tabs and prev/pause/next |
