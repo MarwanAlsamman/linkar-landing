@@ -699,7 +699,7 @@ async function init() {
   [[4.3, 4.32, 0, 1.1], [5.4, 5.415, .5, 1.6]].forEach(([a, b, s, l]) => arcs.add(new THREE.Mesh(new THREE.RingGeometry(a, b, 120, 1, s, Math.PI * l), glow(1.1, .4))));
 
   // paint: dirt + wash sweep, PPF sweep, polish gloss (one small shader patch)
-  const U = { uWash: { value: 3 }, uWashEdge: { value: 0 }, uSweep: { value: 3 }, uEdge: { value: 0 }, uPolish: { value: 0 } };
+  const U = { uWash: { value: -1e4 }, uWashEdge: { value: 0 }, uSweep: { value: 3 }, uEdge: { value: 0 }, uPolish: { value: 0 } };
   const bodyMat = new THREE.MeshPhysicalMaterial({ color: 0xc3c8cc, metalness: .75, roughness: .3, clearcoat: 1, clearcoatRoughness: .05, envMapIntensity: .45 });
   bodyMat.onBeforeCompile = sh => {
     Object.assign(sh.uniforms, U);
@@ -886,7 +886,7 @@ async function init() {
     const inS = i => Math.floor(p) === i;
     // wash
     const w = fxOf(p, S.wash), inWash = inS(S.wash);
-    U.uWash.value = inWash ? 2.9 - 5.8 * w : -3;
+    U.uWash.value = inWash ? 2.9 - 5.8 * w + carGroup.position.z : -1e4;   // -1e4: no dust anywhere (also while the car drives in)
     U.uWashEdge.value = inWash ? Math.min(1, w * 25, (1 - w) * 25) : 0;
     gantry.visible = inWash && w > 0 && w < 1; gantry.position.z = U.uWash.value;
     if (gantry.visible) { for (let i = 0; i < WN; i++) { wp[i*3+1] -= wv[i] * dt; if (wp[i*3+1] < 0) wp[i*3+1] = 2; } wGeo.attributes.position.needsUpdate = true; }
