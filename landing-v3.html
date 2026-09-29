@@ -855,7 +855,7 @@ async function init() {
     // 2 tint: time-based so the clear "before" glass is seen first, then the film sweeps on
     const inTint = Math.floor(p) === 2;
     tintT = inTint ? tintT + dt : 0;
-    const ts = p >= 3 ? 1 : smooth(clamp((tintT - 2.6) / 3.2));   // ~2.6 s of clear glass first, then the film sweeps on
+    const ts = p >= 3 ? 1 : smooth(clamp((tintT - .8) / 2.6));   // a short look at the clear glass, then the film sweeps on
     GU.uTintZ.value = 2.3 - 4.6 * ts;
     GU.uTintEdge.value = inTint ? Math.min(1, ts * 20, (1 - ts) * 20) : 0;
     // 3 polish: dull -> mirror, glint and sparkles
