@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لينكار — بوابة خدمة العملاء</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#05090c">
+<link rel="icon" href="img/linkar_mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  @font-face { font-family: "Kufi"; src: url("fonts/NotoKufiArabic-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Kufi"; src: url("fonts/NotoKufiArabic-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "Kufi"; src: url("fonts/NotoKufiArabic-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+  :root {
+    --bg: #05090c; --bg-2: #0a141b; --card: #0c171f; --card-2: #0f1d27; --line: rgba(255,255,255,.09); --line-2: rgba(255,255,255,.16);
+    --text: #eef3f5; --muted: #8d9ca6; --green: #a4ff00; --green-ink: #0a0a0a;
+    --s-new: #58b7ff; --s-contacted: #f5c451; --s-interested: #c792ff; --s-scheduled: #a4ff00; --s-completed: #3cc81e; --s-lost: #ff6b6b;
+    --font: "Kufi", system-ui, sans-serif;
+  }
+  :root[lang="en"] { --font: "Manrope", system-ui, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  a { color: inherit; text-decoration: none; }
+
+  header { position: sticky; top: 0; z-index: 20; background: rgba(5,9,12,.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(164,255,0,.18); }
+  header .in { display: flex; align-items: center; gap: 16px; padding: 12px 24px; }
+  header img { height: 24px; }
+  header h1 { font-size: 16px; font-weight: 600; color: var(--muted); padding-inline-start: 16px; border-inline-start: 1px solid var(--line-2); }
+  header .sp { flex: 1; }
+  .lang { display: flex; background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 99px; padding: 3px; }
+  .lang button { border: 0; background: none; color: var(--muted); font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 99px; cursor: pointer; }
+  .lang button[data-lang="ar"] { font-family: "Kufi", sans-serif; } .lang button[data-lang="en"] { font-family: "Manrope", sans-serif; }
+  .lang button.on { background: var(--text); color: var(--bg); }
+  .agent { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+  .agent input { width: 140px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+
+  main { padding: 20px 24px 60px; max-width: 1500px; margin-inline: auto; }
+  .note-bar { display: flex; gap: 10px; align-items: flex-start; background: rgba(245,196,81,.08); border: 1px solid rgba(245,196,81,.3); color: #f3dca0; border-radius: 12px; padding: 10px 14px; margin-bottom: 18px; font-size: 13px; }
+  .kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 18px; }
+  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; cursor: pointer; transition: border-color .2s; }
+  .kpi:hover, .kpi.on { border-color: var(--green); }
+  .kpi span { color: var(--muted); font-size: 12px; }
+  .kpi b { display: block; font-size: 28px; font-weight: 700; font-family: "Manrope", sans-serif; line-height: 1.2; margin-top: 2px; }
+  .kpi.due b { color: #f5c451; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .toolbar input[type="search"], .toolbar select { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; min-width: 150px; }
+  .toolbar input[type="search"] { flex: 1; min-width: 220px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line-2); background: var(--card); border-radius: 10px; padding: 9px 14px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+  .btn:hover { border-color: var(--green); }
+  .btn.primary { background: var(--green); color: var(--green-ink); border-color: var(--green); }
+  .btn.sm { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+  .btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .table-wrap { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 920px; }
+  th { text-align: start; font-size: 12px; color: var(--muted); font-weight: 600; padding: 12px 14px; border-bottom: 1px solid var(--line); background: var(--card-2); position: sticky; top: 0; cursor: pointer; user-select: none; white-space: nowrap; }
+  td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  tbody tr { cursor: pointer; transition: background .15s; }
+  tbody tr:hover { background: rgba(164,255,0,.04); }
+  tbody tr.sel { background: rgba(164,255,0,.08); }
+  .who b { display: block; font-weight: 600; }
+  .who small { color: var(--muted); direction: ltr; unicode-bidi: isolate; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 99px; padding: 2px 10px; font-size: 12px; font-weight: 600; border: 1px solid currentColor; white-space: nowrap; }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .type { font-size: 12px; color: var(--muted); }
+  .type.provider { color: #c792ff; }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chip { font-size: 11px; background: rgba(255,255,255,.06); border: 1px solid var(--line); border-radius: 99px; padding: 1px 8px; white-space: nowrap; }
+  .due-today { color: #f5c451; font-weight: 600; }
+  .overdue { color: var(--s-lost); font-weight: 600; }
+  .muted { color: var(--muted); }
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+
+  /* drawer */
+  .drawer { position: fixed; top: 0; bottom: 0; inset-inline-end: 0; width: min(560px, 100%); background: var(--bg-2); border-inline-start: 1px solid var(--line-2); z-index: 40; transform: translateX(calc(100% * var(--dir, -1))); transition: transform .35s cubic-bezier(.2,.8,.2,1); display: flex; flex-direction: column; box-shadow: 0 0 60px rgba(0,0,0,.6); }
+  :root[dir="ltr"] .drawer { --dir: 1; }
+  .drawer.open { transform: none; }
+  .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 30; opacity: 0; pointer-events: none; transition: opacity .3s; }
+  .scrim.open { opacity: 1; pointer-events: auto; }
+  .dh { display: flex; align-items: flex-start; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+  .dh h2 { font-size: 20px; font-weight: 700; }
+  .dh .sp { flex: 1; }
+  .dh .x { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 22px; line-height: 1; }
+  .quick { display: flex; gap: 8px; padding: 12px 20px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .db { flex: 1; overflow: auto; padding: 18px 20px 30px; }
+  .grp { margin-bottom: 20px; }
+  .grp h3 { font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 10px; text-transform: uppercase; letter-spacing: .06em; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  label.f { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+  label.f input, label.f select, textarea { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; color: var(--text); width: 100%; }
+  label.f input:focus, label.f select:focus, textarea:focus { outline: none; border-color: var(--green); }
+  label.f input[type="tel"], label.f input[type="email"] { direction: ltr; text-align: start; }
+  .status-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .status-row button { border: 1px solid var(--line-2); background: var(--card); border-radius: 99px; padding: 5px 12px; cursor: pointer; font-size: 12px; font-weight: 600; }
+  .status-row button.on { color: var(--green-ink); }
+  .svc-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+  .svc-pick label { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line-2); border-radius: 99px; padding: 5px 12px; cursor: pointer; font-size: 12px; }
+  .svc-pick input { accent-color: var(--green); }
+  .svc-pick label:has(input:checked) { border-color: var(--green); background: rgba(164,255,0,.08); }
+  textarea { min-height: 70px; resize: vertical; }
+  .timeline { display: grid; gap: 10px; margin-top: 12px; }
+  .tl { border-inline-start: 2px solid var(--line-2); padding-inline-start: 12px; }
+  .tl.note { border-color: var(--green); }
+  .tl small { color: var(--muted); font-size: 11px; }
+  .tl p { white-space: pre-wrap; }
+  .saved { color: var(--green); font-size: 12px; opacity: 0; transition: opacity .3s; }
+  .saved.show { opacity: 1; }
+  .modal { position: fixed; inset: 0; z-index: 50; display: none; place-items: center; background: rgba(0,0,0,.6); padding: 16px; }
+  .modal.open { display: grid; }
+  .modal .box { background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 16px; padding: 22px; width: min(460px, 100%); display: grid; gap: 10px; }
+  .modal h2 { font-size: 18px; }
+
+  @media (max-width: 1100px) { .kpis { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 640px) {
+    header .in { padding: 10px 14px; flex-wrap: wrap; }
+    header h1 { display: none; }
+    .agent input { width: 110px; }
+    main { padding: 14px; }
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="in">
+    <img id="logo" src="img/linkar_logo_ar_white.png" alt="LINKAR">
+    <h1 data-t="title"></h1>
+    <span class="sp"></span>
+    <label class="agent"><span data-t="agent"></span><input id="agent" autocomplete="name"></label>
+    <div class="lang"><button type="button" data-lang="en">English</button><button type="button" data-lang="ar">العربية</button></div>
+  </div>
+</header>
+
+<main>
+  <div class="note-bar" id="demoNote"></div>
+  <div class="kpis" id="kpis"></div>
+  <div class="toolbar">
+    <input type="search" id="q">
+    <select id="fStatus"></select>
+    <select id="fType"></select>
+    <select id="fService"></select>
+    <button class="btn primary" id="addBtn"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span data-t="add"></span></button>
+    <button class="btn" id="csvBtn"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>CSV</button>
+    <button class="btn" id="jsonBtn" data-t="backup"></button>
+    <label class="btn"><span data-t="restore"></span><input type="file" id="importFile" accept="application/json" hidden></label>
+    <button class="btn" id="demoBtn" data-t="demo"></button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th data-sort="name" data-t="c.name"></th>
+        <th data-sort="type" data-t="c.type"></th>
+        <th data-t="c.services"></th>
+        <th data-sort="preferredDate" data-t="c.pref"></th>
+        <th data-sort="status" data-t="c.status"></th>
+        <th data-sort="followUp" data-t="c.follow"></th>
+        <th data-sort="agent" data-t="c.agent"></th>
+        <th data-sort="createdAt" data-t="c.created"></th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="empty" id="empty" hidden></div>
+  </div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="dh">
+    <div><h2 id="dName"></h2><div class="muted" id="dMeta"></div></div>
+    <span class="sp"></span><span class="saved" id="saved"></span>
+    <button class="x" id="closeBtn" aria-label="Close">×</button>
+  </div>
+  <div class="quick" id="quick"></div>
+  <div class="db">
+    <div class="grp"><h3 data-t="g.status"></h3><div class="status-row" id="statusRow"></div></div>
+    <div class="grp"><h3 data-t="g.contact"></h3>
+      <div class="grid2">
+        <label class="f"><span data-t="f.name"></span><input data-k="name"></label>
+        <label class="f"><span data-t="f.type"></span><select data-k="type"></select></label>
+        <label class="f"><span data-t="f.phone"></span><input data-k="phone" type="tel"></label>
+        <label class="f"><span data-t="f.email"></span><input data-k="email" type="email"></label>
+        <label class="f"><span data-t="f.company"></span><input data-k="company"></label>
+        <label class="f"><span data-t="f.city"></span><input data-k="city"></label>
+      </div>
+    </div>
+    <div class="grp"><h3 data-t="g.need"></h3>
+      <div class="svc-pick" id="svcPick"></div>
+      <div class="grid2" style="margin-top:10px">
+        <label class="f"><span data-t="f.date"></span><input data-k="preferredDate" type="date"></label>
+        <label class="f"><span data-t="f.time"></span><select data-k="preferredTime"></select></label>
+        <label class="f"><span data-t="f.car"></span><input data-k="carModel"></label>
+        <label class="f"><span data-t="f.priority"></span><select data-k="priority"></select></label>
+      </div>
+    </div>
+    <div class="grp"><h3 data-t="g.follow"></h3>
+      <div class="grid2">
+        <label class="f"><span data-t="f.agent"></span><input data-k="agent"></label>
+        <label class="f"><span data-t="f.followUp"></span><input data-k="followUp" type="datetime-local"></label>
+      </div>
+    </div>
+    <div class="grp"><h3 data-t="g.notes"></h3>
+      <textarea id="noteText"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap" id="noteQuick"></div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </div>
+</aside>
+
+<div class="modal" id="addModal">
+  <form class="box" id="addForm">
+    <h2 data-t="add"></h2>
+    <label class="f"><span data-t="f.type"></span><select name="type"></select></label>
+    <label class="f"><span data-t="f.name"></span><input name="name" required></label>
+    <label class="f"><span data-t="f.phone"></span><input name="phone" type="tel" required></label>
+    <label class="f"><span data-t="f.email"></span><input name="email" type="email"></label>
+    <label class="f"><span data-t="f.company"></span><input name="company"></label>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+      <button type="button" class="btn" id="addCancel" data-t="cancel"></button>
+      <button class="btn primary" data-t="save"></button>
+    </div>
+  </form>
+</div>
+
+<script src="linkar-store.js"></script>
+<script>
+(() => {
+  const Store = window.LinkarStore;
+  const T = {
+    ar: {
+      title: 'بوابة خدمة العملاء', agent: 'الموظف:', add: 'إضافة تسجيل', backup: 'نسخة احتياطية', restore: 'استعادة', demo: 'بيانات تجريبية',
+      search: 'ابحث بالاسم أو الجوال أو البريد…', allStatus: 'كل الحالات', allTypes: 'كل الأنواع', allServices: 'كل الخدمات',
+      demoNote: 'وضع تجريبي: التسجيلات محفوظة في هذا المتصفح فقط (نفس المتصفح الذي سُجّل منه في صفحة الهبوط). لربط فريق كامل يلزم خادم — حدّد API_BASE في linkar-store.js.',
+      k: { total: 'إجمالي التسجيلات', new: 'جديد', due: 'متابعات اليوم', scheduled: 'تم الحجز', providers: 'مزودو الخدمة', week: 'آخر ٧ أيام' },
+      c: { name: 'العميل', type: 'النوع', services: 'الخدمات المطلوبة', pref: 'الموعد المفضل', status: 'الحالة', follow: 'المتابعة القادمة', agent: 'المسؤول', created: 'تاريخ التسجيل' },
+      st: { new: 'جديد', contacted: 'تم التواصل', interested: 'مهتم', scheduled: 'تم الحجز', completed: 'مكتمل', lost: 'غير مهتم' },
+      type: { customer: 'عميل', provider: 'مزود خدمة' },
+      pr: { low: 'منخفضة', normal: 'عادية', high: 'عالية' },
+      time: { '': '—', morning: 'صباحاً (٨–١٢)', afternoon: 'ظهراً (١٢–٤)', evening: 'مساءً (٤–٨)', night: 'ليلاً (٨–١٢)' },
+      g: { status: 'حالة المتابعة', contact: 'بيانات التواصل', need: 'ما يحتاجه العميل', follow: 'المتابعة', notes: 'الملاحظات والسجل' },
+      f: { name: 'الاسم', type: 'النوع', phone: 'الجوال', email: 'البريد الإلكتروني', company: 'الشركة / العلامة التجارية', city: 'المدينة', date: 'التاريخ المفضل', time: 'الوقت المفضل', car: 'نوع السيارة / الموديل', priority: 'الأولوية', agent: 'الموظف المسؤول', followUp: 'موعد المتابعة القادمة' },
+      call: 'اتصال', wa: 'واتساب', mail: 'بريد', notePh: 'اكتب ملاحظة عن المكالمة أو طلب العميل…', addNote: 'إضافة ملاحظة',
+      qn: ['لم يرد على الاتصال', 'طلب عرض سعر', 'يفضّل التواصل واتساب', 'سيتم التواصل لاحقاً'],
+      saved: 'تم الحفظ ✓', cancel: 'إلغاء', save: 'حفظ', empty: 'لا توجد تسجيلات بعد. التسجيلات من صفحة الهبوط تظهر هنا تلقائياً.',
+      registered: 'سجّل من صفحة الهبوط', manual: 'أُضيف يدوياً', statusTo: 'تغيّرت الحالة إلى', by: 'بواسطة', today: 'اليوم', overdue: 'متأخر',
+      confirmDemo: 'إضافة ٨ تسجيلات تجريبية؟', confirmRestore: 'سيتم استبدال كل التسجيلات الحالية. متابعة؟',
+    },
+    en: {
+      title: 'Customer service portal', agent: 'Agent:', add: 'Add registration', backup: 'Backup', restore: 'Restore', demo: 'Demo data',
+      search: 'Search name, mobile or email…', allStatus: 'All statuses', allTypes: 'All types', allServices: 'All services',
+      demoNote: 'Demo mode: registrations are stored in this browser only (the same browser used on the landing page). A shared team setup needs a server — set API_BASE in linkar-store.js.',
+      k: { total: 'Total registrations', new: 'New', due: 'Follow-ups today', scheduled: 'Booked', providers: 'Service providers', week: 'Last 7 days' },
+      c: { name: 'Customer', type: 'Type', services: 'Services needed', pref: 'Preferred time', status: 'Status', follow: 'Next follow-up', agent: 'Owner', created: 'Registered' },
+      st: { new: 'New', contacted: 'Contacted', interested: 'Interested', scheduled: 'Booked', completed: 'Completed', lost: 'Not interested' },
+      type: { customer: 'Customer', provider: 'Service provider' },
+      pr: { low: 'Low', normal: 'Normal', high: 'High' },
+      time: { '': '—', morning: 'Morning (8–12)', afternoon: 'Afternoon (12–4)', evening: 'Evening (4–8)', night: 'Night (8–12)' },
+      g: { status: 'Follow-up status', contact: 'Contact details', need: 'What the customer needs', follow: 'Follow-up', notes: 'Notes & history' },
+      f: { name: 'Name', type: 'Type', phone: 'Mobile', email: 'Email', company: 'Company / brand', city: 'City', date: 'Preferred date', time: 'Preferred time', car: 'Car make / model', priority: 'Priority', agent: 'Assigned agent', followUp: 'Next follow-up' },
+      call: 'Call', wa: 'WhatsApp', mail: 'Email', notePh: 'Write a note about the call or the customer request…', addNote: 'Add note',
+      qn: ['No answer', 'Asked for a quote', 'Prefers WhatsApp', 'Will follow up later'],
+      saved: 'Saved ✓', cancel: 'Cancel', save: 'Save', empty: 'No registrations yet. Sign-ups from the landing page appear here automatically.',
+      registered: 'Registered on the landing page', manual: 'Added manually', statusTo: 'Status changed to', by: 'by', today: 'Today', overdue: 'Overdue',
+      confirmDemo: 'Add 8 demo registrations?', confirmRestore: 'This replaces all current registrations. Continue?',
+    },
+  };
+  const STATUSES = ['new', 'contacted', 'interested', 'scheduled', 'completed', 'lost'];
+  const $ = s => document.querySelector(s);
+  let lang = 'ar', list = [], selId = null, filterKpi = null, sort = { k: 'createdAt', dir: -1 };
+  const t = () => T[lang];
+  const svcName = id => { const s = Store.SERVICES.find(x => x.id === id); return s ? s[lang] : id; };
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const locale = () => (lang === 'ar' ? 'ar-SA-u-nu-latn' : 'en-GB');
+  const fmtDate = s => s ? new Date(s).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+  const fmtDT = s => s ? new Date(s).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+  const dayKey = d => new Date(d).toDateString();
+  const statusColor = s => `var(--s-${s})`;
+  const agentName = () => $('#agent').value.trim();
+
+  async function load() { list = await Store.list(); render(); if (selId) fillDrawer(); }
+
+  /* ---------- list ---------- */
+  function filtered() {
+    const q = $('#q').value.trim().toLowerCase(), fs = $('#fStatus').value, ft = $('#fType').value, fv = $('#fService').value;
+    const today = dayKey(Date.now());
+    return list.filter(r => {
+      if (q && ![r.name, r.phone, r.email, r.company, r.city].join(' ').toLowerCase().includes(q)) return false;
+      if (fs && r.status !== fs) return false;
+      if (ft && r.type !== ft) return false;
+      if (fv && !(r.services || []).includes(fv)) return false;
+      if (filterKpi === 'new' && r.status !== 'new') return false;
+      if (filterKpi === 'scheduled' && r.status !== 'scheduled') return false;
+      if (filterKpi === 'providers' && r.type !== 'provider') return false;
+      if (filterKpi === 'due' && !(r.followUp && new Date(r.followUp) <= new Date(today + ' 23:59:59') && !['completed', 'lost'].includes(r.status))) return false;
+      if (filterKpi === 'week' && Date.now() - new Date(r.createdAt) > 7 * 864e5) return false;
+      return true;
+    }).sort((a, b) => {
+      const va = a[sort.k] || '', vb = b[sort.k] || '';
+      return (sort.k === 'status' ? STATUSES.indexOf(va) - STATUSES.indexOf(vb) : String(va).localeCompare(String(vb))) * sort.dir;
+    });
+  }
+  function followCell(r) {
+    if (!r.followUp || ['completed', 'lost'].includes(r.status)) return '<span class="muted">—</span>';
+    const d = new Date(r.followUp), now = new Date();
+    if (dayKey(d) === dayKey(now)) return `<span class="due-today">${t().today} ${d.toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' })}</span>`;
+    if (d < now) return `<span class="overdue">${t().overdue} · ${fmtDate(r.followUp)}</span>`;
+    return fmtDT(r.followUp);
+  }
+  function render() {
+    const today = dayKey(Date.now()), open = r => !['completed', 'lost'].includes(r.status);
+    const k = {
+      total: list.length, new: list.filter(r => r.status === 'new').length,
+      due: list.filter(r => r.followUp && open(r) && new Date(r.followUp) <= new Date(today + ' 23:59:59')).length,
+      scheduled: list.filter(r => r.status === 'scheduled').length, providers: list.filter(r => r.type === 'provider').length,
+      week: list.filter(r => Date.now() - new Date(r.createdAt) <= 7 * 864e5).length,
+    };
+    $('#kpis').innerHTML = Object.entries(k).map(([key, v]) => `<div class="kpi ${key === 'due' ? 'due' : ''} ${filterKpi === key || (key === 'total' && !filterKpi) ? 'on' : ''}" data-k="${key}"><span>${t().k[key]}</span><b>${v}</b></div>`).join('');
+    const rows = filtered();
+    $('#rows').innerHTML = rows.map(r => `
+      <tr data-id="${r.id}" class="${r.id === selId ? 'sel' : ''}">
+        <td class="who"><b>${esc(r.name) || '—'}</b><small>${esc(r.phone)}${r.email ? ' · ' + esc(r.email) : ''}</small></td>
+        <td><span class="type ${r.type}">${t().type[r.type] || r.type}</span>${r.company ? `<div class="muted" style="font-size:12px">${esc(r.company)}</div>` : ''}</td>
+        <td><div class="chips">${(r.services || []).map(s => `<span class="chip">${svcName(s)}</span>`).join('') || '<span class="muted">—</span>'}</div></td>
+        <td>${r.preferredDate ? fmtDate(r.preferredDate) : '<span class="muted">—</span>'}${r.preferredTime ? `<div class="muted" style="font-size:12px">${t().time[r.preferredTime]}</div>` : ''}</td>
+        <td><span class="pill" style="color:${statusColor(r.status)}">${t().st[r.status]}</span></td>
+        <td>${followCell(r)}</td>
+        <td>${esc(r.agent) || '<span class="muted">—</span>'}</td>
+        <td class="muted">${fmtDT(r.createdAt)}</td>
+      </tr>`).join('');
+    $('#empty').hidden = rows.length > 0;
+    $('#empty').textContent = t().empty;
+  }
+
+  /* ---------- drawer ---------- */
+  const cur = () => list.find(r => r.id === selId);
+  function open(id) { selId = id; fillDrawer(); $('#drawer').classList.add('open'); $('#scrim').classList.add('open'); $('#drawer').setAttribute('aria-hidden', 'false'); render(); }
+  function close() { selId = null; $('#drawer').classList.remove('open'); $('#scrim').classList.remove('open'); $('#drawer').setAttribute('aria-hidden', 'true'); render(); }
+  function fillDrawer() {
+    const r = cur(); if (!r) return close();
+    $('#dName').textContent = r.name || '—';
+    $('#dMeta').textContent = `${r.id} · ${fmtDT(r.createdAt)}`;
+    const phone = (r.phone || '').replace(/[^\d+]/g, ''), wa = phone.replace(/^\+/, '').replace(/^0/, '966');
+    $('#quick').innerHTML = `
+      ${phone ? `<a class="btn sm" href="tel:${phone}">📞 ${t().call}</a><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/${wa}">💬 ${t().wa}</a>` : ''}
+      ${r.email ? `<a class="btn sm" href="mailto:${esc(r.email)}">✉️ ${t().mail}</a>` : ''}`;
+    $('#statusRow').innerHTML = STATUSES.map(s => `<button type="button" data-s="${s}" class="${r.status === s ? 'on' : ''}" style="${r.status === s ? `background:${statusColor(s)};border-color:${statusColor(s)}` : `color:${statusColor(s)}`}">${t().st[s]}</button>`).join('');
+    document.querySelectorAll('#drawer [data-k]').forEach(el => { el.value = r[el.dataset.k] ?? ''; });
+    $('#svcPick').innerHTML = Store.SERVICES.map(s => `<label><input type="checkbox" value="${s.id}" ${(r.services || []).includes(s.id) ? 'checked' : ''}>${s[lang]}</label>`).join('');
+    const items = [
+      ...(r.notes || []).map(n => ({ at: n.at, html: `<div class="tl note"><small>${fmtDT(n.at)}${n.by ? ` · ${t().by} ${esc(n.by)}` : ''}</small><p>${esc(n.text)}</p></div>` })),
+      ...(r.history || []).map(h => ({ at: h.at, html: `<div class="tl"><small>${fmtDT(h.at)}${h.by ? ` · ${t().by} ${esc(h.by)}` : ''}</small><p class="muted">${histText(h)}</p></div>` })),
+    ].sort((a, b) => new Date(b.at) - new Date(a.at));
+    $('#timeline').innerHTML = items.map(i => i.html).join('');
+  }
+  function histText(h) {
+    if (h.text === 'registered') return t().registered;
+    if (h.text === 'manual') return t().manual;
+    if (h.status) return `${t().statusTo} «${t().st[h.status]}»`;
+    return esc(h.text);
+  }
+  let flash;
+  async function persist(r) {
+    await Store.save(r);
+    const s = $('#saved'); s.textContent = t().saved; s.classList.add('show'); clearTimeout(flash); flash = setTimeout(() => s.classList.remove('show'), 1400);
+    render();
+  }
+
+  $('#rows').addEventListener('click', e => { const tr = e.target.closest('tr[data-id]'); if (tr) open(tr.dataset.id); });
+  $('#closeBtn').addEventListener('click', close);
+  $('#scrim').addEventListener('click', close);
+  addEventListener('keydown', e => { if (e.key === 'Escape') { close(); $('#addModal').classList.remove('open'); } });
+  $('#statusRow').addEventListener('click', e => {
+    const b = e.target.closest('button'); const r = cur(); if (!b || !r || r.status === b.dataset.s) return;
+    r.status = b.dataset.s;
+    if (!r.agent && agentName()) r.agent = agentName();
+    (r.history ||= []).push({ at: new Date().toISOString(), status: r.status, by: agentName() });
+    persist(r).then(fillDrawer);
+  });
+  document.querySelectorAll('#drawer [data-k]').forEach(el => el.addEventListener('change', () => { const r = cur(); if (!r) return; r[el.dataset.k] = el.value; persist(r); $('#dName').textContent = r.name || '—'; }));
+  $('#svcPick').addEventListener('change', () => { const r = cur(); if (!r) return; r.services = [...$('#svcPick').querySelectorAll('input:checked')].map(i => i.value); persist(r); });
+  function addNote(text) {
+    const r = cur(); text = text.trim(); if (!r || !text) return;
+    (r.notes ||= []).push({ at: new Date().toISOString(), by: agentName(), text });
+    if (r.status === 'new') { r.status = 'contacted'; (r.history ||= []).push({ at: new Date().toISOString(), status: 'contacted', by: agentName() }); }
+    if (!r.agent && agentName()) r.agent = agentName();
+    $('#noteText').value = '';
+    persist(r).then(fillDrawer);
+  }
+  $('#noteText').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) addNote($('#noteText').value); });
+  $('#noteQuick').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; b.dataset.add ? addNote($('#noteText').value) : addNote(b.textContent); });
+
+  /* ---------- toolbar ---------- */
+  ['#q', '#fStatus', '#fType', '#fService'].forEach(s => $(s).addEventListener('input', render));
+  $('#kpis').addEventListener('click', e => { const k = e.target.closest('.kpi'); if (!k) return; filterKpi = k.dataset.k === 'total' || filterKpi === k.dataset.k ? null : k.dataset.k; render(); });
+  document.querySelectorAll('th[data-sort]').forEach(th => th.addEventListener('click', () => { sort = { k: th.dataset.sort, dir: sort.k === th.dataset.sort ? -sort.dir : 1 }; render(); }));
+  $('#addBtn').addEventListener('click', () => { $('#addForm').reset(); $('#addModal').classList.add('open'); $('#addForm').elements.name.focus(); });
+  $('#addCancel').addEventListener('click', () => $('#addModal').classList.remove('open'));
+  $('#addForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const f = Object.fromEntries(new FormData(e.target));
+    const rec = await Store.add({ ...f, source: 'manual', agent: agentName(), history: [{ at: new Date().toISOString(), text: 'manual', by: agentName() }] });
+    $('#addModal').classList.remove('open'); await load(); open(rec.id);
+  });
+  const download = (name, text, type) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+  $('#csvBtn').addEventListener('click', () => {
+    const cols = ['id', 'createdAt', 'type', 'name', 'company', 'phone', 'email', 'status', 'priority', 'services', 'preferredDate', 'preferredTime', 'city', 'carModel', 'agent', 'followUp', 'notes'];
+    const cell = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const rows = filtered().map(r => cols.map(c => cell(c === 'services' ? (r.services || []).map(svcName).join(' | ') : c === 'notes' ? (r.notes || []).map(n => `${n.at.slice(0, 16)} ${n.by || ''}: ${n.text}`).join(' || ') : c === 'status' ? t().st[r.status] : c === 'type' ? t().type[r.type] : r[c])).join(','));
+    download(`linkar-registrations-${new Date().toISOString().slice(0, 10)}.csv`, '﻿' + [cols.join(','), ...rows].join('\n'), 'text/csv');
+  });
+  $('#jsonBtn').addEventListener('click', () => download(`linkar-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(list, null, 2), 'application/json'));
+  $('#importFile').addEventListener('change', async e => {
+    const file = e.target.files[0]; e.target.value = ''; if (!file) return;
+    try { const data = JSON.parse(await file.text()); if (!Array.isArray(data)) throw 0; if (!confirm(t().confirmRestore)) return; await Store.replaceAll(data); load(); } catch (err) { alert('Invalid backup file'); }
+  });
+  $('#demoBtn').addEventListener('click', async () => {
+    if (!confirm(t().confirmDemo)) return;
+    const d = (days, h = 10) => { const x = new Date(); x.setDate(x.getDate() + days); x.setHours(h, 0, 0, 0); return x.toISOString(); };
+    const local = x => { const z = new Date(x); z.setMinutes(z.getMinutes() - z.getTimezoneOffset()); return z.toISOString(); };
+    const dl = days => local(d(days)).slice(0, 10), dtl = (days, h) => local(d(days, h)).slice(0, 16);   // values for date / datetime-local inputs
+    const demo = [
+      { name: 'عبدالله القحطاني', phone: '0551234567', email: 'abdullah@example.com', status: 'new', services: ['ppf'], createdAt: d(0, 9) },
+      { name: 'سارة الغامدي', phone: '0569876543', email: 'sara@example.com', status: 'contacted', services: ['tint', 'ceramic'], preferredDate: dl(3), preferredTime: 'evening', city: 'جدة', carModel: 'Toyota Camry 2024', agent: 'نورة', followUp: dtl(0, 16), createdAt: d(-1, 13), notes: [{ at: d(-1, 15), by: 'نورة', text: 'تريد عرض سعر للتظليل والسيراميك معاً' }] },
+      { name: 'Mohammed Al-Harbi', phone: '0501112233', email: 'm.harbi@example.com', status: 'scheduled', services: ['wash', 'polish'], preferredDate: dl(2), preferredTime: 'morning', city: 'الرياض', carModel: 'Lexus ES 2023', agent: 'فهد', createdAt: d(-3, 11), notes: [{ at: d(-2, 10), by: 'فهد', text: 'تم الحجز مع مركز معتمد في حي الملقا' }] },
+      { name: 'مركز اللمعة الذهبية', type: 'provider', company: 'اللمعة الذهبية للعناية بالسيارات', phone: '0114445566', email: 'info@golden-shine.example', status: 'interested', services: ['polish', 'ceramic', 'ppf'], city: 'الدمام', agent: 'فهد', followUp: dtl(-1, 11), createdAt: d(-4, 12) },
+      { name: 'ريم العتيبي', phone: '0543332211', email: 'reem@example.com', status: 'completed', services: ['ceramic'], city: 'الرياض', agent: 'نورة', createdAt: d(-9, 17) },
+      { name: 'خالد الزهراني', phone: '0537778899', email: 'khalid@example.com', status: 'lost', services: ['tint'], createdAt: d(-6, 8), notes: [{ at: d(-5, 9), by: 'نورة', text: 'غير مهتم حالياً، السعر أعلى من المتوقع' }] },
+      { name: 'Fatimah Al-Shehri', phone: '0592223344', email: 'fatimah@example.com', status: 'new', services: ['wash'], createdAt: d(0, 11), lang: 'en' },
+      { name: 'ورشة التظليل الاحترافي', type: 'provider', company: 'التظليل الاحترافي', phone: '0126667788', email: 'pro-tint@example.com', status: 'contacted', services: ['tint'], city: 'جدة', agent: 'نورة', followUp: dtl(1, 12), createdAt: d(-2, 16) },
+    ];
+    for (const r of demo) await Store.add({ source: 'demo', history: [{ at: r.createdAt, text: 'registered' }], ...r });
+    load();
+  });
+
+  /* ---------- language ---------- */
+  function setLang(l) {
+    lang = l === 'en' ? 'en' : 'ar';
+    document.documentElement.lang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.title = (lang === 'ar' ? 'لينكار — ' : 'LINKAR — ') + t().title;
+    $('#logo').src = lang === 'ar' ? 'img/linkar_logo_ar_white.png' : 'img/linkar_logo_white.png';
+    document.querySelectorAll('[data-t]').forEach(el => { el.textContent = el.dataset.t.split('.').reduce((o, k) => o?.[k], t()) ?? ''; });
+    document.querySelectorAll('.lang button').forEach(b => b.classList.toggle('on', b.dataset.lang === lang));
+    $('#q').placeholder = t().search; $('#noteText').placeholder = t().notePh;
+    $('#demoNote').textContent = Store.remote ? '' : t().demoNote; $('#demoNote').hidden = Store.remote;
+    const opts = (sel, all, map) => { const v = $(sel).value; $(sel).innerHTML = `<option value="">${all}</option>` + Object.entries(map).map(([k, n]) => `<option value="${k}">${n}</option>`).join(''); $(sel).value = v; };
+    opts('#fStatus', t().allStatus, t().st); opts('#fType', t().allTypes, t().type);
+    opts('#fService', t().allServices, Object.fromEntries(Store.SERVICES.map(s => [s.id, s[lang]])));
+    const fill = (el, map) => { const v = el.value; el.innerHTML = Object.entries(map).map(([k, n]) => `<option value="${k}">${n}</option>`).join(''); el.value = v; };
+    fill(document.querySelector('#drawer [data-k="type"]'), t().type); fill($('#addForm').elements.type, t().type);
+    fill(document.querySelector('#drawer [data-k="preferredTime"]'), t().time); fill(document.querySelector('#drawer [data-k="priority"]'), t().pr);
+    $('#noteQuick').innerHTML = `<button type="button" class="btn sm primary" data-add="1">${t().addNote}</button>` + t().qn.map(q => `<button type="button" class="btn sm">${q}</button>`).join('');
+    try { localStorage.setItem('linkar-lang', lang); } catch (e) {}
+    render(); if (selId) fillDrawer();
+  }
+  document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+  try { $('#agent').value = localStorage.getItem('linkar-agent') || ''; } catch (e) {}
+  $('#agent').addEventListener('change', () => { try { localStorage.setItem('linkar-agent', agentName()); } catch (e) {} });
+
+  // new sign-ups from the landing page (another tab) show up live
+  addEventListener('storage', e => { if (e.key === 'linkar-registrations-v1') load(); });
+  addEventListener('focus', load);
+
+  let saved = new URLSearchParams(location.search).get('lang');
+  if (!saved) { try { saved = localStorage.getItem('linkar-lang'); } catch (e) {} }
+  setLang(saved || 'ar');
+  load();
+})();
+</script>
+</body>
+</html>
