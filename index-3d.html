@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="config.js"></script>
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -848,7 +849,7 @@
   document.querySelectorAll('a[data-mode]').forEach(a => a.addEventListener('click', () => { card.classList.remove('ok'); setMode(a.dataset.mode); }));
 
   // Set to the backend URL (e.g. the SoonPage ASP.NET app) to store sign-ups; empty = demo only.
-  const ENDPOINT = '';
+  const ENDPOINT = window.LINKAR_API ? window.LINKAR_API.replace(/\/$/, '') + '/registrations' : '';   // see config.js
   form.addEventListener('submit', async e => {
     e.preventDefault();
     let ok = true;
@@ -864,7 +865,7 @@
     data.lang = lang;
     if (mode !== 'provider') delete data.company;
     if (ENDPOINT) {
-      try { await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); }
+      try { await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ lang: document.documentElement.lang, source: location.pathname.split('/').pop().replace(/\.html$/, '') }, data)) }); }
       catch (err) { console.error(err); }
     }
     document.getElementById('doneMsg').textContent = d(mode === 'provider' ? 'doneP' : 'doneC');

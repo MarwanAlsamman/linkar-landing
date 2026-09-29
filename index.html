@@ -643,6 +643,7 @@
   <div class="wordmark" aria-hidden="true">LIN<b>K</b>AR</div>
 </footer>
 
+<script src="config.js"></script>
 <script>
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -735,7 +736,7 @@
   document.querySelectorAll('a[data-mode]').forEach(a => a.addEventListener('click', () => setMode(a.dataset.mode)));
 
   // Set to the backend URL (e.g. the SoonPage ASP.NET app) to store sign-ups; empty = demo only.
-  const ENDPOINT = '';
+  const ENDPOINT = window.LINKAR_API ? window.LINKAR_API.replace(/\/$/, '') + '/registrations' : '';   // see config.js
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
@@ -751,7 +752,7 @@
     data.type = form.dataset.mode;
     if (form.dataset.mode !== 'provider') delete data.company;
     if (ENDPOINT) {
-      try { await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); }
+      try { await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ lang: document.documentElement.lang, source: location.pathname.split('/').pop().replace(/\.html$/, '') }, data)) }); }
       catch (err) { console.error(err); }
     }
     document.getElementById('doneMsg').textContent = data.type === 'provider'

@@ -116,6 +116,7 @@
   </div>
 </div>
 
+<script src="config.js"></script>
 <script>
 (() => {
   const board = document.getElementById('board'), card = document.getElementById('card');
@@ -143,7 +144,7 @@
     phone: v => /^\+?[0-9\s]{9,15}$/.test(v.trim()), email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
   };
   // Set to the backend URL (e.g. the SoonPage ASP.NET app) to store sign-ups; empty = demo only.
-  const ENDPOINT = '';
+  const ENDPOINT = window.LINKAR_API ? window.LINKAR_API.replace(/\/$/, '') + '/registrations' : '';   // see config.js
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const inputs = [...form.querySelectorAll('input')].filter(i => i.offsetParent !== null);
@@ -153,7 +154,7 @@
     const data = Object.fromEntries(inputs.map(i => [i.name, i.value.trim()]));
     data.type = provider ? 'provider' : 'customer';
     if (ENDPOINT) {
-      try { await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); }
+      try { await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ lang: document.documentElement.lang, source: location.pathname.split('/').pop().replace(/\.html$/, '') }, data)) }); }
       catch (err) { console.error(err); }
     }
     document.getElementById('doneMsg').textContent = provider ? 'سيتواصل معك فريق لينكار قريباً' : 'سنرسل لك الخصم الحصري عند الإطلاق';

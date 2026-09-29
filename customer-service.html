@@ -7,8 +7,9 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#05090c">
 <link rel="icon" href="img/linkar_mark.png">
+<script src="config.js"></script>
 <script src="auth.js"></script>
-<script>if (!LinkarAuth.current()) location.replace('login.html?next=' + encodeURIComponent(location.pathname.split('/').pop() || 'customer-service.html'));</script>
+<script>document.documentElement.style.visibility = 'hidden';   // shown once the employee is confirmed</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -110,6 +111,9 @@
   .tl.note { border-color: var(--green); }
   .tl small { color: var(--muted); font-size: 11px; }
   .tl p { white-space: pre-wrap; }
+  .info { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 12px; }
+  .info dt { color: var(--muted); }
+  .info dd { word-break: break-word; }
   .saved { color: var(--green); font-size: 12px; opacity: 0; transition: opacity .3s; }
   .saved.show { opacity: 1; }
   .modal { position: fixed; inset: 0; z-index: 50; display: none; place-items: center; background: rgba(0,0,0,.6); padding: 16px; }
@@ -156,6 +160,7 @@
     <span class="sp"></span>
     <span class="me"><span data-t="agent"></span><b id="meName"></b><span class="role" id="meRole"></span></span>
     <button class="btn sm" id="staffBtn" data-t="staff" hidden></button>
+    <button class="btn sm" id="pwBtn" data-t="changePw"></button>
     <button class="btn sm" id="logoutBtn" data-t="logout"></button>
     <div class="lang"><button type="button" data-lang="en">English</button><button type="button" data-lang="ar">العربية</button></div>
   </div>
@@ -229,6 +234,7 @@
         <label class="f"><span data-t="f.followUp"></span><input data-k="followUp" type="datetime-local"></label>
       </div>
     </div>
+    <div class="grp"><h3 data-t="g.info"></h3><div class="info" id="infoBox"></div></div>
     <div class="grp"><h3 data-t="g.notes"></h3>
       <textarea id="noteText"></textarea>
       <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap" id="noteQuick"></div>
@@ -276,11 +282,13 @@
 <script src="portal-data.js"></script>
 <script src="linkar-store.js"></script>
 <script>
-(() => {
+(async () => {
+  const me = await LinkarAuth.require();
+  document.documentElement.style.visibility = '';
   const Store = window.LinkarStore;
   const T = {
     ar: {
-      title: 'بوابة خدمة العملاء', agent: 'الموظف:', logout: 'خروج', staff: 'حسابات الموظفين', newStaff: 'إضافة موظف', addStaff: 'إضافة', close: 'إغلاق', user: 'اسم المستخدم', pass: 'كلمة المرور', role: 'الصلاحية', roles: { agent: 'موظف', admin: 'مدير' }, resetPw: 'تغيير كلمة المرور', remove: 'حذف', newPw: 'كلمة المرور الجديدة لـ', you: '(أنت)', errs: { missing: 'أكمل الحقول', short: 'كلمة المرور ٦ أحرف على الأقل', exists: 'اسم المستخدم مستخدم', 'last-admin': 'لا يمكن حذف آخر مدير' }, pick: 'اختر أو ابحث…', pickMakeFirst: 'اختر الماركة أولاً', noMatch: 'لا نتائج', add: 'إضافة تسجيل', backup: 'نسخة احتياطية', restore: 'استعادة', demo: 'بيانات تجريبية',
+      title: 'بوابة خدمة العملاء', agent: 'الموظف:', logout: 'خروج', staff: 'حسابات الموظفين', newStaff: 'إضافة موظف', addStaff: 'إضافة', close: 'إغلاق', user: 'اسم المستخدم', pass: 'كلمة المرور', role: 'الصلاحية', roles: { agent: 'موظف', admin: 'مدير' }, resetPw: 'تغيير كلمة المرور', remove: 'حذف', newPw: 'كلمة المرور الجديدة لـ', you: '(أنت)', errs: { missing: 'أكمل الحقول', short: 'كلمة المرور ٨ أحرف على الأقل', weak: 'استخدم حروفاً وأرقاماً', self: 'لا يمكنك حذف حسابك', exists: 'اسم المستخدم مستخدم', 'last-admin': 'لا يمكن حذف آخر مدير' }, pick: 'اختر أو ابحث…', pickMakeFirst: 'اختر الماركة أولاً', noMatch: 'لا نتائج', add: 'إضافة تسجيل', backup: 'نسخة احتياطية', restore: 'استعادة', demo: 'بيانات تجريبية',
       search: 'ابحث بالاسم أو الجوال أو البريد…', allStatus: 'كل الحالات', allTypes: 'كل الأنواع', allServices: 'كل الخدمات',
       k: { total: 'إجمالي التسجيلات', new: 'جديد', due: 'متابعات اليوم', scheduled: 'تم الحجز', providers: 'مزودو الخدمة', week: 'آخر ٧ أيام' },
       c: { name: 'العميل', type: 'النوع', services: 'الخدمات المطلوبة', pref: 'الموعد المفضل', status: 'الحالة', follow: 'المتابعة القادمة', agent: 'المسؤول', created: 'تاريخ التسجيل' },
@@ -288,7 +296,9 @@
       type: { customer: 'عميل', provider: 'مزود خدمة' },
       pr: { low: 'منخفضة', normal: 'عادية', high: 'عالية' },
       time: { '': '—', morning: 'صباحاً (٨–١٢)', afternoon: 'ظهراً (١٢–٤)', evening: 'مساءً (٤–٨)', night: 'ليلاً (٨–١٢)' },
-      g: { status: 'حالة المتابعة', contact: 'بيانات التواصل', need: 'ما يحتاجه العميل', follow: 'المتابعة', notes: 'الملاحظات والسجل' },
+      g: { status: 'حالة المتابعة', contact: 'بيانات التواصل', need: 'ما يحتاجه العميل', follow: 'المتابعة', info: 'بيانات التسجيل', notes: 'الملاحظات والسجل' },
+      i: { id: 'رقم التسجيل', created: 'تاريخ التسجيل', updated: 'آخر تحديث', source: 'المصدر', page: 'الصفحة', lang: 'لغة الزائر', device: 'الجهاز / المتصفح' },
+      changePw: 'تغيير كلمة المرور', saveErr: 'تعذّر الحفظ، حاول مرة أخرى',
       f: { name: 'الاسم', type: 'النوع', phone: 'الجوال', email: 'البريد الإلكتروني', company: 'الشركة / العلامة التجارية', city: 'المدينة', make: 'ماركة السيارة', model: 'موديل السيارة', date: 'التاريخ المفضل', time: 'الوقت المفضل', car: 'نوع السيارة / الموديل', priority: 'الأولوية', agent: 'الموظف المسؤول', followUp: 'موعد المتابعة القادمة' },
       call: 'اتصال', wa: 'واتساب', mail: 'بريد', notePh: 'اكتب ملاحظة عن المكالمة أو طلب العميل…', addNote: 'إضافة ملاحظة',
       qn: ['لم يرد على الاتصال', 'طلب عرض سعر', 'يفضّل التواصل واتساب', 'سيتم التواصل لاحقاً'],
@@ -297,7 +307,7 @@
       confirmDemo: 'إضافة ٨ تسجيلات تجريبية؟', confirmRestore: 'سيتم استبدال كل التسجيلات الحالية. متابعة؟',
     },
     en: {
-      title: 'Customer service portal', agent: 'Agent:', logout: 'Sign out', staff: 'Staff accounts', newStaff: 'Add employee', addStaff: 'Add', close: 'Close', user: 'Username', pass: 'Password', role: 'Role', roles: { agent: 'Agent', admin: 'Admin' }, resetPw: 'Change password', remove: 'Remove', newPw: 'New password for', you: '(you)', errs: { missing: 'Fill in all fields', short: 'Password must be at least 6 characters', exists: 'Username already taken', 'last-admin': 'Cannot remove the last admin' }, pick: 'Select or search…', pickMakeFirst: 'Select the brand first', noMatch: 'No matches', add: 'Add registration', backup: 'Backup', restore: 'Restore', demo: 'Demo data',
+      title: 'Customer service portal', agent: 'Agent:', logout: 'Sign out', staff: 'Staff accounts', newStaff: 'Add employee', addStaff: 'Add', close: 'Close', user: 'Username', pass: 'Password', role: 'Role', roles: { agent: 'Agent', admin: 'Admin' }, resetPw: 'Change password', remove: 'Remove', newPw: 'New password for', you: '(you)', errs: { missing: 'Fill in all fields', short: 'Password must be at least 8 characters', weak: 'Use both letters and numbers', self: 'You cannot remove your own account', exists: 'Username already taken', 'last-admin': 'Cannot remove the last admin' }, pick: 'Select or search…', pickMakeFirst: 'Select the brand first', noMatch: 'No matches', add: 'Add registration', backup: 'Backup', restore: 'Restore', demo: 'Demo data',
       search: 'Search name, mobile or email…', allStatus: 'All statuses', allTypes: 'All types', allServices: 'All services',
       k: { total: 'Total registrations', new: 'New', due: 'Follow-ups today', scheduled: 'Booked', providers: 'Service providers', week: 'Last 7 days' },
       c: { name: 'Customer', type: 'Type', services: 'Services needed', pref: 'Preferred time', status: 'Status', follow: 'Next follow-up', agent: 'Owner', created: 'Registered' },
@@ -305,7 +315,9 @@
       type: { customer: 'Customer', provider: 'Service provider' },
       pr: { low: 'Low', normal: 'Normal', high: 'High' },
       time: { '': '—', morning: 'Morning (8–12)', afternoon: 'Afternoon (12–4)', evening: 'Evening (4–8)', night: 'Night (8–12)' },
-      g: { status: 'Follow-up status', contact: 'Contact details', need: 'What the customer needs', follow: 'Follow-up', notes: 'Notes & history' },
+      g: { status: 'Follow-up status', contact: 'Contact details', need: 'What the customer needs', follow: 'Follow-up', info: 'Registration details', notes: 'Notes & history' },
+      i: { id: 'Registration ID', created: 'Registered', updated: 'Last updated', source: 'Source', page: 'Page', lang: 'Visitor language', device: 'Device / browser' },
+      changePw: 'Change password', saveErr: 'Could not save, please try again',
       f: { name: 'Name', type: 'Type', phone: 'Mobile', email: 'Email', company: 'Company / brand', city: 'City', make: 'Car brand', model: 'Car model', date: 'Preferred date', time: 'Preferred time', car: 'Car make / model', priority: 'Priority', agent: 'Assigned agent', followUp: 'Next follow-up' },
       call: 'Call', wa: 'WhatsApp', mail: 'Email', notePh: 'Write a note about the call or the customer request…', addNote: 'Add note',
       qn: ['No answer', 'Asked for a quote', 'Prefers WhatsApp', 'Will follow up later'],
@@ -325,10 +337,15 @@
   const fmtDT = s => s ? new Date(s).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
   const dayKey = d => new Date(d).toDateString();
   const statusColor = s => `var(--s-${s})`;
-  const me = LinkarAuth.current() || { name: '', role: 'agent', username: '' };
   const agentName = () => me.name;
 
-  async function load() { list = await Store.list(); render(); if (selId) fillDrawer(); }
+  async function load() {
+    try { list = await Store.list(); }
+    catch (e) { if (e.status === 401) return location.replace('login.html?next=customer-service.html'); console.error(e); return; }
+    render(); if (selId) fillDrawer();
+  }
+  // server mode: new sign-ups appear without reloading (only while no record is open, so typing is never interrupted)
+  if (Store.remote) setInterval(() => { if (!selId && !document.hidden) load(); }, 30000);
 
   /* ---------- list ---------- */
   function filtered() {
@@ -397,6 +414,11 @@
     $('#statusRow').innerHTML = STATUSES.map(s => `<button type="button" data-s="${s}" class="${r.status === s ? 'on' : ''}" style="${r.status === s ? `background:${statusColor(s)};border-color:${statusColor(s)}` : `color:${statusColor(s)}`}">${t().st[s]}</button>`).join('');
     document.querySelectorAll('#drawer [data-k]').forEach(el => { el.value = r[el.dataset.k] ?? ''; });
     fillCombos(r);
+    const lastUpd = r.updatedAt && r.updatedAt !== r.createdAt ? fmtDT(r.updatedAt) : '—';
+    $('#infoBox').innerHTML = [
+      [t().i.id, r.id], [t().i.created, fmtDT(r.createdAt)], [t().i.updated, lastUpd], [t().i.source, r.source || '—'],
+      [t().i.page, r.page || '—'], [t().i.lang, r.lang === 'en' ? 'English' : 'العربية'], [t().i.device, r.userAgent || '—'],
+    ].map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('');
     $('#svcPick').innerHTML = Store.SERVICES.map(s => `<label><input type="checkbox" value="${s.id}" ${(r.services || []).includes(s.id) ? 'checked' : ''}>${s[lang]}</label>`).join('');
     const items = [
       ...(r.notes || []).map(n => ({ at: n.at, html: `<div class="tl note"><small>${fmtDT(n.at)}${n.by ? ` · ${t().by} ${esc(n.by)}` : ''}</small><p>${esc(n.text)}</p></div>` })),
@@ -412,7 +434,8 @@
   }
   let flash;
   async function persist(r) {
-    await Store.save(r);
+    try { const saved = await Store.save(r); if (saved) Object.assign(r, saved); }
+    catch (e) { if (e.status === 401) return location.replace('login.html?next=customer-service.html'); alert(t().saveErr); throw e; }
     const s = $('#saved'); s.textContent = t().saved; s.classList.add('show'); clearTimeout(flash); flash = setTimeout(() => s.classList.remove('show'), 1400);
     render();
   }
@@ -461,6 +484,7 @@
     download(`linkar-registrations-${new Date().toISOString().slice(0, 10)}.csv`, '﻿' + [cols.join(','), ...rows].join('\n'), 'text/csv');
   });
   $('#jsonBtn').addEventListener('click', () => download(`linkar-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(list, null, 2), 'application/json'));
+  if (Store.remote) $('#importFile').closest('label').hidden = true;
   $('#importFile').addEventListener('change', async e => {
     const file = e.target.files[0]; e.target.value = ''; if (!file) return;
     try { const data = JSON.parse(await file.text()); if (!Array.isArray(data)) throw 0; if (!confirm(t().confirmRestore)) return; await Store.replaceAll(data); load(); } catch (err) { alert('Invalid backup file'); }
@@ -534,10 +558,11 @@
 
   /* ---------- staff accounts (admins) ---------- */
   $('#meName').textContent = me.name;
-  $('#logoutBtn').addEventListener('click', () => { LinkarAuth.logout(); location.replace('login.html'); });
+  $('#logoutBtn').addEventListener('click', async () => { await LinkarAuth.logout(); location.replace('login.html'); });
+  $('#pwBtn').addEventListener('click', () => location.href = 'login.html?change=1&next=customer-service.html');
   $('#staffBtn').hidden = me.role !== 'admin';
-  function drawStaff() {
-    $('#staffList').innerHTML = LinkarAuth.users().map(u => `<div>
+  async function drawStaff() {
+    $('#staffList').innerHTML = (await LinkarAuth.users()).map(u => `<div>
       <span><b>${esc(u.name)}</b> ${u.username === me.username ? t().you : ''}<small>${esc(u.username)} · ${t().roles[u.role]}${u.lastLogin ? ' · ' + fmtDT(u.lastLogin) : ''}</small></span>
       <button type="button" class="btn sm" data-reset="${esc(u.username)}">${t().resetPw}</button>
       ${u.username === me.username ? '' : `<button type="button" class="btn sm" data-del="${esc(u.username)}">${t().remove}</button>`}
@@ -548,7 +573,7 @@
   $('#staffList').addEventListener('click', async e => {
     const del = e.target.closest('[data-del]'), rs = e.target.closest('[data-reset]');
     try {
-      if (del && confirm(`${t().remove}: ${del.dataset.del}?`)) { LinkarAuth.removeUser(del.dataset.del); drawStaff(); }
+      if (del && confirm(`${t().remove}: ${del.dataset.del}?`)) { await LinkarAuth.removeUser(del.dataset.del); drawStaff(); }
       if (rs) { const pw = prompt(`${t().newPw} ${rs.dataset.reset}`); if (pw) { await LinkarAuth.resetPassword(rs.dataset.reset, pw); $('#staffErr').textContent = ''; } }
     } catch (x) { $('#staffErr').textContent = t().errs[x.message] || x.message; }
   });

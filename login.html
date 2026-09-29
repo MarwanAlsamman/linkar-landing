@@ -37,80 +37,115 @@
   button.go { margin-top: 6px; background: var(--green); color: #0a0a0a; border: 0; border-radius: 6px; padding: 13px; font: 700 17px var(--font); cursor: pointer; }
   button.go:disabled { opacity: .6; cursor: wait; }
   .err { color: #ff7b7b; font-size: 13px; min-height: 18px; text-align: center; }
-  .setup-only { display: none; }
-  .setup .setup-only { display: grid; }
+  .setup-only, .change-only { display: none; }
+  .setup .setup-only, .change .change-only { display: grid; }
+  .change .login-only { display: none; }
+  .hint { color: var(--muted); font-size: 12px; margin-top: -4px; }
   .foot { margin-top: 18px; text-align: center; color: var(--muted); font-size: 12px; }
 </style>
 </head>
 <body>
 <div class="lang"><button type="button" data-lang="en">English</button><button type="button" data-lang="ar">العربية</button></div>
 <div class="card" id="card">
-  <img id="logo" src="img/linkar_logo_ar_white.png" alt="LINKAR">
+  <img id="logo" src="img/linkar_logo_white.png" alt="LINKAR">
   <h1 id="h"></h1>
   <p class="sub" id="sub"></p>
   <form id="form" novalidate>
     <label class="setup-only"><span data-t="name"></span><input type="text" name="name" autocomplete="name"></label>
-    <label><span data-t="user"></span><input type="text" name="username" autocomplete="username" autocapitalize="off" spellcheck="false"></label>
-    <label><span data-t="pass"></span><input type="password" name="password" autocomplete="current-password"></label>
+    <label class="login-only"><span data-t="user"></span><input type="text" name="username" autocomplete="username" autocapitalize="off" spellcheck="false"></label>
+    <label id="pwLabel"><span id="pwText"></span><input type="password" name="password" autocomplete="current-password"></label>
     <label class="setup-only"><span data-t="pass2"></span><input type="password" name="password2" autocomplete="new-password"></label>
-    <label class="remember"><input type="checkbox" name="remember"><span data-t="remember"></span></label>
+    <label class="change-only"><span data-t="newPass"></span><input type="password" name="newPassword" autocomplete="new-password"></label>
+    <label class="change-only"><span data-t="newPass2"></span><input type="password" name="newPassword2" autocomplete="new-password"></label>
+    <p class="hint change-only" data-t="rule"></p>
+    <label class="remember login-only"><input type="checkbox" name="remember"><span data-t="remember"></span></label>
     <div class="err" id="err" role="alert"></div>
     <button class="go" id="go"></button>
   </form>
   <p class="foot" data-t="foot"></p>
 </div>
+<script src="config.js"></script>
 <script src="auth.js"></script>
 <script>
-(() => {
+(async () => {
   const T = {
     ar: { login: 'دخول الموظفين', loginSub: 'بوابة خدمة العملاء', setup: 'إنشاء حساب المدير', setupSub: 'أول دخول: أنشئ حساب المدير لإدارة حسابات الموظفين',
-          name: 'الاسم', user: 'اسم المستخدم', pass: 'كلمة المرور', pass2: 'تأكيد كلمة المرور', remember: 'تذكرني على هذا الجهاز (١٢ ساعة)',
-          go: 'دخول', create: 'إنشاء الحساب والدخول', foot: 'للموظفين المصرّح لهم فقط', invalid: 'اسم المستخدم أو كلمة المرور غير صحيحة',
-          missing: 'أكمل جميع الحقول', short: 'كلمة المرور ٦ أحرف على الأقل', mismatch: 'كلمتا المرور غير متطابقتين', exists: 'اسم المستخدم مستخدم', insecure: 'يجب فتح البوابة عبر https' },
+          change: 'تغيير كلمة المرور', changeSub: 'كلمة المرور الحالية مؤقتة. اختر كلمة مرور جديدة للمتابعة.', changeSubSelf: 'أدخل كلمة المرور الحالية ثم الجديدة.',
+          name: 'الاسم', user: 'اسم المستخدم', pass: 'كلمة المرور', curPass: 'كلمة المرور الحالية', pass2: 'تأكيد كلمة المرور', newPass: 'كلمة المرور الجديدة', newPass2: 'تأكيد كلمة المرور الجديدة',
+          rule: '٨ أحرف على الأقل، وتحتوي على حروف وأرقام', remember: 'تذكرني على هذا الجهاز (١٢ ساعة)',
+          go: 'دخول', create: 'إنشاء الحساب والدخول', save: 'حفظ ومتابعة', foot: 'للموظفين المصرّح لهم فقط', invalid: 'اسم المستخدم أو كلمة المرور غير صحيحة',
+          missing: 'أكمل جميع الحقول', short: 'كلمة المرور ٨ أحرف على الأقل', weak: 'يجب أن تحتوي كلمة المرور على حروف وأرقام', mismatch: 'كلمتا المرور غير متطابقتين', exists: 'اسم المستخدم مستخدم',
+          'wrong-current': 'كلمة المرور الحالية غير صحيحة', same: 'اختر كلمة مرور مختلفة عن الحالية', 'too-many': 'محاولات كثيرة، حاول بعد دقائق', server: 'تعذّر الاتصال بالخادم', insecure: 'يجب فتح البوابة عبر https' },
     en: { login: 'Staff sign in', loginSub: 'Customer service portal', setup: 'Create the admin account', setupSub: 'First visit: create the admin account that manages staff accounts',
-          name: 'Full name', user: 'Username', pass: 'Password', pass2: 'Confirm password', remember: 'Keep me signed in on this device (12 h)',
-          go: 'Sign in', create: 'Create account & sign in', foot: 'Authorized staff only', invalid: 'Wrong username or password',
-          missing: 'Please fill in all fields', short: 'Password must be at least 6 characters', mismatch: 'Passwords do not match', exists: 'Username already taken', insecure: 'Open the portal over https' },
+          change: 'Change password', changeSub: 'Your current password is temporary. Choose a new one to continue.', changeSubSelf: 'Enter your current password, then the new one.',
+          name: 'Full name', user: 'Username', pass: 'Password', curPass: 'Current password', pass2: 'Confirm password', newPass: 'New password', newPass2: 'Confirm new password',
+          rule: 'At least 8 characters, with letters and numbers', remember: 'Keep me signed in on this device (12 h)',
+          go: 'Sign in', create: 'Create account & sign in', save: 'Save & continue', foot: 'Authorized staff only', invalid: 'Wrong username or password',
+          missing: 'Please fill in all fields', short: 'Password must be at least 8 characters', weak: 'Use both letters and numbers', mismatch: 'Passwords do not match', exists: 'Username already taken',
+          'wrong-current': 'Current password is wrong', same: 'Choose a password different from the current one', 'too-many': 'Too many attempts, try again in a few minutes', server: 'Could not reach the server', insecure: 'Open the portal over https' },
   };
-  const next = () => new URLSearchParams(location.search).get('next') || 'customer-service.html';
-  if (LinkarAuth.current()) { location.replace(next()); return; }
-  let lang = 'ar';
-  const setup = () => !LinkarAuth.hasUsers();
+  const q = new URLSearchParams(location.search);
+  const next = () => { const n = q.get('next') || 'customer-service.html'; return /^[\w.-]+\.html$/.test(n) ? n : 'customer-service.html'; };
   const $ = s => document.querySelector(s), form = $('#form');
+  let lang = 'ar', mode = 'login', forced = false, typedPassword = '';
+
+  const me = await LinkarAuth.me();
+  if (me && (q.get('change') === '1' || me.mustChangePassword)) { mode = 'change'; forced = !!me.mustChangePassword; }
+  else if (me) { location.replace(next()); return; }
+  else if (!LinkarAuth.hasUsers()) mode = 'setup';
+
   function paint() {
     const t = T[lang];
     document.documentElement.lang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-    document.title = (lang === 'ar' ? 'لينكار — ' : 'LINKAR — ') + t.login;
-    $('#logo').src = lang === 'ar' ? 'img/linkar_logo_ar_white.png' : 'img/linkar_logo_white.png';
-    $('#card').classList.toggle('setup', setup());
-    $('#h').textContent = setup() ? t.setup : t.login;
-    $('#sub').textContent = setup() ? t.setupSub : t.loginSub;
-    $('#go').textContent = setup() ? t.create : t.go;
-    form.password.autocomplete = setup() ? 'new-password' : 'current-password';
+    document.title = (lang === 'ar' ? 'لينكار — ' : 'LINKAR — ') + (mode === 'change' ? t.change : t.login);
+    $('#card').classList.toggle('setup', mode === 'setup');
+    $('#card').classList.toggle('change', mode === 'change');
+    $('#h').textContent = mode === 'setup' ? t.setup : mode === 'change' ? t.change : t.login;
+    $('#sub').textContent = mode === 'setup' ? t.setupSub : mode === 'change' ? (forced ? t.changeSub : t.changeSubSelf) : t.loginSub;
+    $('#go').textContent = mode === 'setup' ? t.create : mode === 'change' ? t.save : t.go;
+    $('#pwText').textContent = mode === 'change' ? t.curPass : t.pass;
+    // right after signing in with a temporary password we already know the current one
+    $('#pwLabel').style.display = mode === 'change' && typedPassword ? 'none' : '';
+    form.password.autocomplete = mode === 'setup' ? 'new-password' : 'current-password';
     document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t[el.dataset.t]; });
     document.querySelectorAll('.lang button').forEach(b => b.classList.toggle('on', b.dataset.lang === lang));
   }
   document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => { lang = b.dataset.lang; try { localStorage.setItem('linkar-lang', lang); } catch (e) {} paint(); }));
-  try { lang = new URLSearchParams(location.search).get('lang') || localStorage.getItem('linkar-lang') || 'ar'; } catch (e) {}
+  try { lang = q.get('lang') || localStorage.getItem('linkar-lang') || 'ar'; } catch (e) {}
   if (lang !== 'en') lang = 'ar';
   paint();
-  (setup() ? form.name : form.username).focus();
+  (mode === 'setup' ? form.name : mode === 'change' ? form.password : form.username).focus();
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const t = T[lang], f = Object.fromEntries(new FormData(form)), err = $('#err');
     err.textContent = '';
-    if (!window.crypto?.subtle) { err.textContent = t.insecure; return; }
-    if (!f.username.trim() || !f.password || (setup() && (!f.name.trim() || !f.password2))) { err.textContent = t.missing; return; }
-    if (setup() && f.password !== f.password2) { err.textContent = t.mismatch; return; }
+    if (!LinkarAuth.remote && !window.crypto?.subtle) { err.textContent = t.insecure; return; }
     $('#go').disabled = true;
     try {
-      if (setup()) await LinkarAuth.setupAdmin({ name: f.name, username: f.username, password: f.password }, !!f.remember);
-      else await LinkarAuth.login(f.username, f.password, !!f.remember);
+      if (mode === 'change') {
+        const cur = typedPassword || f.password;
+        if (!cur || !f.newPassword || !f.newPassword2) throw new Error('missing');
+        if (f.newPassword !== f.newPassword2) throw new Error('mismatch');
+        await LinkarAuth.changePassword(cur, f.newPassword);
+        location.replace(next());
+        return;
+      }
+      if (!f.username.trim() || !f.password || (mode === 'setup' && (!f.name.trim() || !f.password2))) throw new Error('missing');
+      if (mode === 'setup' && f.password !== f.password2) throw new Error('mismatch');
+      const user = mode === 'setup'
+        ? await LinkarAuth.setupAdmin({ name: f.name, username: f.username, password: f.password }, !!f.remember)
+        : await LinkarAuth.login(f.username, f.password, !!f.remember);
+      if (user && user.mustChangePassword) {
+        typedPassword = f.password; mode = 'change'; forced = true;
+        form.reset(); paint(); form.newPassword.focus();
+        $('#go').disabled = false;
+        return;
+      }
       location.replace(next());
     } catch (x) {
       err.textContent = t[x.message] || t.invalid;
-      form.password.value = ''; if (form.password2) form.password2.value = '';
+      if (mode !== 'change') { form.password.value = ''; if (form.password2) form.password2.value = ''; }
       $('#go').disabled = false;
     }
   });
