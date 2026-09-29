@@ -177,7 +177,6 @@
     <button class="btn" id="csvBtn"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>CSV</button>
     <button class="btn" id="jsonBtn" data-t="backup"></button>
     <label class="btn"><span data-t="restore"></span><input type="file" id="importFile" accept="application/json" hidden></label>
-    <button class="btn" id="demoBtn" data-t="demo"></button>
   </div>
   <div class="table-wrap">
     <table>
@@ -288,7 +287,7 @@
   const Store = window.LinkarStore;
   const T = {
     ar: {
-      title: 'بوابة خدمة العملاء', agent: 'الموظف:', logout: 'خروج', staff: 'حسابات الموظفين', newStaff: 'إضافة موظف', addStaff: 'إضافة', close: 'إغلاق', user: 'اسم المستخدم', pass: 'كلمة المرور', role: 'الصلاحية', roles: { agent: 'موظف', admin: 'مدير' }, resetPw: 'تغيير كلمة المرور', remove: 'حذف', newPw: 'كلمة المرور الجديدة لـ', you: '(أنت)', errs: { missing: 'أكمل الحقول', short: 'كلمة المرور ٨ أحرف على الأقل', weak: 'استخدم حروفاً وأرقاماً', self: 'لا يمكنك حذف حسابك', exists: 'اسم المستخدم مستخدم', 'last-admin': 'لا يمكن حذف آخر مدير' }, pick: 'اختر أو ابحث…', pickMakeFirst: 'اختر الماركة أولاً', noMatch: 'لا نتائج', add: 'إضافة تسجيل', backup: 'نسخة احتياطية', restore: 'استعادة', demo: 'بيانات تجريبية',
+      title: 'بوابة خدمة العملاء', agent: 'الموظف:', logout: 'خروج', staff: 'حسابات الموظفين', newStaff: 'إضافة موظف', addStaff: 'إضافة', close: 'إغلاق', user: 'اسم المستخدم', pass: 'كلمة المرور', role: 'الصلاحية', roles: { agent: 'موظف', admin: 'مدير' }, resetPw: 'تغيير كلمة المرور', remove: 'حذف', newPw: 'كلمة المرور الجديدة لـ', you: '(أنت)', errs: { missing: 'أكمل الحقول', short: 'كلمة المرور ٨ أحرف على الأقل', weak: 'استخدم حروفاً وأرقاماً', self: 'لا يمكنك حذف حسابك', exists: 'اسم المستخدم مستخدم', 'last-admin': 'لا يمكن حذف آخر مدير' }, pick: 'اختر أو ابحث…', pickMakeFirst: 'اختر الماركة أولاً', noMatch: 'لا نتائج', add: 'إضافة تسجيل', backup: 'نسخة احتياطية', restore: 'استعادة',
       search: 'ابحث بالاسم أو الجوال أو البريد…', allStatus: 'كل الحالات', allTypes: 'كل الأنواع', allServices: 'كل الخدمات',
       k: { total: 'إجمالي التسجيلات', new: 'جديد', due: 'متابعات اليوم', scheduled: 'تم الحجز', providers: 'مزودو الخدمة', week: 'آخر ٧ أيام' },
       c: { name: 'العميل', type: 'النوع', services: 'الخدمات المطلوبة', pref: 'الموعد المفضل', status: 'الحالة', follow: 'المتابعة القادمة', agent: 'المسؤول', created: 'تاريخ التسجيل' },
@@ -303,11 +302,10 @@
       call: 'اتصال', wa: 'واتساب', mail: 'بريد', notePh: 'اكتب ملاحظة عن المكالمة أو طلب العميل…', addNote: 'إضافة ملاحظة',
       qn: ['لم يرد على الاتصال', 'طلب عرض سعر', 'يفضّل التواصل واتساب', 'سيتم التواصل لاحقاً'],
       saved: 'تم الحفظ ✓', cancel: 'إلغاء', save: 'حفظ', empty: 'لا توجد تسجيلات بعد. التسجيلات من صفحة الهبوط تظهر هنا تلقائياً.',
-      registered: 'سجّل من صفحة الهبوط', manual: 'أُضيف يدوياً', statusTo: 'تغيّرت الحالة إلى', by: 'بواسطة', today: 'اليوم', overdue: 'متأخر',
-      confirmDemo: 'إضافة ٨ تسجيلات تجريبية؟', confirmRestore: 'سيتم استبدال كل التسجيلات الحالية. متابعة؟',
+      registered: 'سجّل من صفحة الهبوط', manual: 'أُضيف يدوياً', statusTo: 'تغيّرت الحالة إلى', by: 'بواسطة', today: 'اليوم', overdue: 'متأخر', confirmRestore: 'سيتم استبدال كل التسجيلات الحالية. متابعة؟',
     },
     en: {
-      title: 'Customer service portal', agent: 'Agent:', logout: 'Sign out', staff: 'Staff accounts', newStaff: 'Add employee', addStaff: 'Add', close: 'Close', user: 'Username', pass: 'Password', role: 'Role', roles: { agent: 'Agent', admin: 'Admin' }, resetPw: 'Change password', remove: 'Remove', newPw: 'New password for', you: '(you)', errs: { missing: 'Fill in all fields', short: 'Password must be at least 8 characters', weak: 'Use both letters and numbers', self: 'You cannot remove your own account', exists: 'Username already taken', 'last-admin': 'Cannot remove the last admin' }, pick: 'Select or search…', pickMakeFirst: 'Select the brand first', noMatch: 'No matches', add: 'Add registration', backup: 'Backup', restore: 'Restore', demo: 'Demo data',
+      title: 'Customer service portal', agent: 'Agent:', logout: 'Sign out', staff: 'Staff accounts', newStaff: 'Add employee', addStaff: 'Add', close: 'Close', user: 'Username', pass: 'Password', role: 'Role', roles: { agent: 'Agent', admin: 'Admin' }, resetPw: 'Change password', remove: 'Remove', newPw: 'New password for', you: '(you)', errs: { missing: 'Fill in all fields', short: 'Password must be at least 8 characters', weak: 'Use both letters and numbers', self: 'You cannot remove your own account', exists: 'Username already taken', 'last-admin': 'Cannot remove the last admin' }, pick: 'Select or search…', pickMakeFirst: 'Select the brand first', noMatch: 'No matches', add: 'Add registration', backup: 'Backup', restore: 'Restore',
       search: 'Search name, mobile or email…', allStatus: 'All statuses', allTypes: 'All types', allServices: 'All services',
       k: { total: 'Total registrations', new: 'New', due: 'Follow-ups today', scheduled: 'Booked', providers: 'Service providers', week: 'Last 7 days' },
       c: { name: 'Customer', type: 'Type', services: 'Services needed', pref: 'Preferred time', status: 'Status', follow: 'Next follow-up', agent: 'Owner', created: 'Registered' },
@@ -322,8 +320,7 @@
       call: 'Call', wa: 'WhatsApp', mail: 'Email', notePh: 'Write a note about the call or the customer request…', addNote: 'Add note',
       qn: ['No answer', 'Asked for a quote', 'Prefers WhatsApp', 'Will follow up later'],
       saved: 'Saved ✓', cancel: 'Cancel', save: 'Save', empty: 'No registrations yet. Sign-ups from the landing page appear here automatically.',
-      registered: 'Registered on the landing page', manual: 'Added manually', statusTo: 'Status changed to', by: 'by', today: 'Today', overdue: 'Overdue',
-      confirmDemo: 'Add 8 demo registrations?', confirmRestore: 'This replaces all current registrations. Continue?',
+      registered: 'Registered on the landing page', manual: 'Added manually', statusTo: 'Status changed to', by: 'by', today: 'Today', overdue: 'Overdue', confirmRestore: 'This replaces all current registrations. Continue?',
     },
   };
   const STATUSES = ['new', 'contacted', 'interested', 'scheduled', 'completed', 'lost'];
@@ -489,25 +486,6 @@
     const file = e.target.files[0]; e.target.value = ''; if (!file) return;
     try { const data = JSON.parse(await file.text()); if (!Array.isArray(data)) throw 0; if (!confirm(t().confirmRestore)) return; await Store.replaceAll(data); load(); } catch (err) { alert('Invalid backup file'); }
   });
-  $('#demoBtn').addEventListener('click', async () => {
-    if (!confirm(t().confirmDemo)) return;
-    const d = (days, h = 10) => { const x = new Date(); x.setDate(x.getDate() + days); x.setHours(h, 0, 0, 0); return x.toISOString(); };
-    const local = x => { const z = new Date(x); z.setMinutes(z.getMinutes() - z.getTimezoneOffset()); return z.toISOString(); };
-    const dl = days => local(d(days)).slice(0, 10), dtl = (days, h) => local(d(days, h)).slice(0, 16);   // values for date / datetime-local inputs
-    const demo = [
-      { name: 'عبدالله القحطاني', phone: '0551234567', email: 'abdullah@example.com', status: 'new', services: ['ppf'], createdAt: d(0, 9) },
-      { name: 'سارة الغامدي', phone: '0569876543', email: 'sara@example.com', status: 'contacted', services: ['tint', 'ceramic'], preferredDate: dl(3), preferredTime: 'evening', city: 'Jeddah', carMake: 'Toyota', carModel: 'Camry', agent: 'نورة', followUp: dtl(0, 16), createdAt: d(-1, 13), notes: [{ at: d(-1, 15), by: 'نورة', text: 'تريد عرض سعر للتظليل والسيراميك معاً' }] },
-      { name: 'Mohammed Al-Harbi', phone: '0501112233', email: 'm.harbi@example.com', status: 'scheduled', services: ['wash', 'polish'], preferredDate: dl(2), preferredTime: 'morning', city: 'Riyadh', carMake: 'Lexus', carModel: 'ES', agent: 'فهد', createdAt: d(-3, 11), notes: [{ at: d(-2, 10), by: 'فهد', text: 'تم الحجز مع مركز معتمد في حي الملقا' }] },
-      { name: 'مركز اللمعة الذهبية', type: 'provider', company: 'اللمعة الذهبية للعناية بالسيارات', phone: '0114445566', email: 'info@golden-shine.example', status: 'interested', services: ['polish', 'ceramic', 'ppf'], city: 'Dammam', agent: 'فهد', followUp: dtl(-1, 11), createdAt: d(-4, 12) },
-      { name: 'ريم العتيبي', phone: '0543332211', email: 'reem@example.com', status: 'completed', services: ['ceramic'], city: 'Riyadh', carMake: 'Hyundai', carModel: 'Tucson', agent: 'نورة', createdAt: d(-9, 17) },
-      { name: 'خالد الزهراني', phone: '0537778899', email: 'khalid@example.com', status: 'lost', services: ['tint'], createdAt: d(-6, 8), notes: [{ at: d(-5, 9), by: 'نورة', text: 'غير مهتم حالياً، السعر أعلى من المتوقع' }] },
-      { name: 'Fatimah Al-Shehri', phone: '0592223344', email: 'fatimah@example.com', status: 'new', services: ['wash'], createdAt: d(0, 11), lang: 'en' },
-      { name: 'ورشة التظليل الاحترافي', type: 'provider', company: 'التظليل الاحترافي', phone: '0126667788', email: 'pro-tint@example.com', status: 'contacted', services: ['tint'], city: 'Jeddah', agent: 'نورة', followUp: dtl(1, 12), createdAt: d(-2, 16) },
-    ];
-    for (const r of demo) await Store.add({ source: 'demo', history: [{ at: r.createdAt, text: 'registered' }], ...r });
-    load();
-  });
-
   /* ---------- searchable dropdowns (city, car brand, car model) ---------- */
   const fold = x => String(x || '').toLowerCase().replace(/[\u064B-\u0652]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
   function combo(el, { options, onPick }) {
