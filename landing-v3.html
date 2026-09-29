@@ -907,7 +907,7 @@ async function init() {
     const inTint = Math.floor(p) === 2;
     if (!inTint) tintStart = 0; else if (!tintStart) tintStart = now;
     const tintT = inTint ? (now - tintStart) / 1000 : 0;          // wall-clock, so slow frames don't stretch it
-    const ts = p >= 3 ? 1 : smooth(clamp((tintT - .8) / 2.6));   // a short look at the clear glass, then the film sweeps on
+    const ts = p >= 3 ? 1 : smooth(clamp((tintT - .15) / 1.8));   // a short look at the clear glass, then the film sweeps on
     GU.uTintZ.value = 1.28 - 1.2 * ts; GU.uCarZ.value = carGroup.position.z;
     GU.uTintEdge.value = inTint ? Math.min(1, ts * 20, (1 - ts) * 20) : 0;
     // 3 polish: dull -> mirror, glint and sparkles
