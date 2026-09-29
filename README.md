@@ -6,6 +6,7 @@ Static pages for the LINKAR car-care marketplace launch (no build step).
 |---|---|
 | `landing-v3.html` | V3 landing: content from "Landing Page V3.pdf" (hero + sign-up, about, 5 services, 3 steps, why LINKAR, light 3D showcase of the 5 services, FAQ). AR default, EN tab |
 | `customer-service.html` | Customer-service portal: follow up sign-ups (status, services needed, preferred date/time, notes, follow-ups, CSV export) |
+| `login.html` | Staff login for the portal. The first visit creates the admin account; admins add employees from the portal |
 | `coming-soon.html` | Exact build of the "Landing Page.pdf" design only (desktop + mobile, customer / service-provider form) |
 | `index.html` | First version — 2D, Arabic, scroll-driven PPF wrap |
 | `index-3d.html` | 3D studio, scroll story: every scroll plays one full service scene (wash, polish, PPF, ceramic, tires, maintenance, interior, window film, wrap) |
@@ -19,3 +20,5 @@ Static pages for the LINKAR car-care marketplace launch (no build step).
 ## Registrations
 
 `landing-v3.html` saves sign-ups through `linkar-store.js`, and `customer-service.html` reads them. With `API_BASE` empty (demo) the data lives in the visitor's own browser, so the portal only sees sign-ups made in the same browser. Set `API_BASE` to a backend (GET/POST `/registrations`, PUT `/registrations/{id}`) to share them with the whole team.
+
+Staff accounts (`auth.js`) are also browser-only for now: passwords are stored as salted PBKDF2 hashes in localStorage, with no default password. This keeps the portal UI away from casual visitors but is not server-side security; move login to the backend together with `API_BASE`.

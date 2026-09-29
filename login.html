@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لينكار — دخول الموظفين</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#05090c">
+<link rel="icon" href="img/linkar_mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  @font-face { font-family: "Kufi"; src: url("fonts/NotoKufiArabic-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Kufi"; src: url("fonts/NotoKufiArabic-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "Kufi"; src: url("fonts/NotoKufiArabic-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+  :root { --bg: #05090c; --line: rgba(255,255,255,.12); --text: #eef3f5; --muted: #8d9ca6; --green: #a4ff00; --font: "Kufi", system-ui, sans-serif; }
+  :root[lang="en"] { --font: "Manrope", system-ui, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding: 20px; font-family: var(--font); color: var(--text); -webkit-font-smoothing: antialiased;
+    background: radial-gradient(60% 55% at 50% 45%, #142834, #0a151c 60%, #000); }
+  .lang { position: fixed; top: 18px; inset-inline-end: 20px; display: flex; background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 99px; padding: 3px; }
+  .lang button { border: 0; background: none; color: var(--muted); font: 600 12px var(--font); padding: 5px 12px; border-radius: 99px; cursor: pointer; }
+  .lang button[data-lang="ar"] { font-family: "Kufi", sans-serif; } .lang button[data-lang="en"] { font-family: "Manrope", sans-serif; }
+  .lang button.on { background: var(--text); color: var(--bg); }
+  .card { width: min(400px, 100%); background: #000; border: 1px solid rgba(255,255,255,.22); border-radius: 22px; padding: 34px 28px 30px; }
+  .card img { height: 30px; margin: 0 auto 22px; display: block; }
+  h1 { font-size: 24px; font-weight: 600; text-align: center; }
+  .sub { color: var(--muted); text-align: center; margin: 4px 0 22px; font-size: 14px; }
+  form { display: grid; gap: 12px; }
+  label { display: grid; gap: 5px; font-size: 13px; color: #c9d3d8; }
+  input[type="text"], input[type="password"] { width: 100%; font: 400 15px var(--font); padding: 12px 14px; border-radius: 6px; border: 1px solid transparent; background: #fff; color: #111; outline: none; }
+  input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(164,255,0,.3); }
+  input[name="username"], input[type="password"] { direction: ltr; text-align: start; }
+  .remember { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; cursor: pointer; }
+  .remember input { accent-color: var(--green); }
+  button.go { margin-top: 6px; background: var(--green); color: #0a0a0a; border: 0; border-radius: 6px; padding: 13px; font: 700 17px var(--font); cursor: pointer; }
+  button.go:disabled { opacity: .6; cursor: wait; }
+  .err { color: #ff7b7b; font-size: 13px; min-height: 18px; text-align: center; }
+  .setup-only { display: none; }
+  .setup .setup-only { display: grid; }
+  .foot { margin-top: 18px; text-align: center; color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="lang"><button type="button" data-lang="en">English</button><button type="button" data-lang="ar">العربية</button></div>
+<div class="card" id="card">
+  <img id="logo" src="img/linkar_logo_ar_white.png" alt="LINKAR">
+  <h1 id="h"></h1>
+  <p class="sub" id="sub"></p>
+  <form id="form" novalidate>
+    <label class="setup-only"><span data-t="name"></span><input type="text" name="name" autocomplete="name"></label>
+    <label><span data-t="user"></span><input type="text" name="username" autocomplete="username" autocapitalize="off" spellcheck="false"></label>
+    <label><span data-t="pass"></span><input type="password" name="password" autocomplete="current-password"></label>
+    <label class="setup-only"><span data-t="pass2"></span><input type="password" name="password2" autocomplete="new-password"></label>
+    <label class="remember"><input type="checkbox" name="remember"><span data-t="remember"></span></label>
+    <div class="err" id="err" role="alert"></div>
+    <button class="go" id="go"></button>
+  </form>
+  <p class="foot" data-t="foot"></p>
+</div>
+<script src="auth.js"></script>
+<script>
+(() => {
+  const T = {
+    ar: { login: 'دخول الموظفين', loginSub: 'بوابة خدمة العملاء', setup: 'إنشاء حساب المدير', setupSub: 'أول دخول: أنشئ حساب المدير لإدارة حسابات الموظفين',
+          name: 'الاسم', user: 'اسم المستخدم', pass: 'كلمة المرور', pass2: 'تأكيد كلمة المرور', remember: 'تذكرني على هذا الجهاز (١٢ ساعة)',
+          go: 'دخول', create: 'إنشاء الحساب والدخول', foot: 'للموظفين المصرّح لهم فقط', invalid: 'اسم المستخدم أو كلمة المرور غير صحيحة',
+          missing: 'أكمل جميع الحقول', short: 'كلمة المرور ٦ أحرف على الأقل', mismatch: 'كلمتا المرور غير متطابقتين', exists: 'اسم المستخدم مستخدم', insecure: 'يجب فتح البوابة عبر https' },
+    en: { login: 'Staff sign in', loginSub: 'Customer service portal', setup: 'Create the admin account', setupSub: 'First visit: create the admin account that manages staff accounts',
+          name: 'Full name', user: 'Username', pass: 'Password', pass2: 'Confirm password', remember: 'Keep me signed in on this device (12 h)',
+          go: 'Sign in', create: 'Create account & sign in', foot: 'Authorized staff only', invalid: 'Wrong username or password',
+          missing: 'Please fill in all fields', short: 'Password must be at least 6 characters', mismatch: 'Passwords do not match', exists: 'Username already taken', insecure: 'Open the portal over https' },
+  };
+  const next = () => new URLSearchParams(location.search).get('next') || 'customer-service.html';
+  if (LinkarAuth.current()) { location.replace(next()); return; }
+  let lang = 'ar';
+  const setup = () => !LinkarAuth.hasUsers();
+  const $ = s => document.querySelector(s), form = $('#form');
+  function paint() {
+    const t = T[lang];
+    document.documentElement.lang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.title = (lang === 'ar' ? 'لينكار — ' : 'LINKAR — ') + t.login;
+    $('#logo').src = lang === 'ar' ? 'img/linkar_logo_ar_white.png' : 'img/linkar_logo_white.png';
+    $('#card').classList.toggle('setup', setup());
+    $('#h').textContent = setup() ? t.setup : t.login;
+    $('#sub').textContent = setup() ? t.setupSub : t.loginSub;
+    $('#go').textContent = setup() ? t.create : t.go;
+    form.password.autocomplete = setup() ? 'new-password' : 'current-password';
+    document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t[el.dataset.t]; });
+    document.querySelectorAll('.lang button').forEach(b => b.classList.toggle('on', b.dataset.lang === lang));
+  }
+  document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => { lang = b.dataset.lang; try { localStorage.setItem('linkar-lang', lang); } catch (e) {} paint(); }));
+  try { lang = new URLSearchParams(location.search).get('lang') || localStorage.getItem('linkar-lang') || 'ar'; } catch (e) {}
+  if (lang !== 'en') lang = 'ar';
+  paint();
+  (setup() ? form.name : form.username).focus();
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const t = T[lang], f = Object.fromEntries(new FormData(form)), err = $('#err');
+    err.textContent = '';
+    if (!window.crypto?.subtle) { err.textContent = t.insecure; return; }
+    if (!f.username.trim() || !f.password || (setup() && (!f.name.trim() || !f.password2))) { err.textContent = t.missing; return; }
+    if (setup() && f.password !== f.password2) { err.textContent = t.mismatch; return; }
+    $('#go').disabled = true;
+    try {
+      if (setup()) await LinkarAuth.setupAdmin({ name: f.name, username: f.username, password: f.password }, !!f.remember);
+      else await LinkarAuth.login(f.username, f.password, !!f.remember);
+      location.replace(next());
+    } catch (x) {
+      err.textContent = t[x.message] || t.invalid;
+      form.password.value = ''; if (form.password2) form.password2.value = '';
+      $('#go').disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>
