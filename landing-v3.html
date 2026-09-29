@@ -163,6 +163,8 @@
   .player button:hover { border-color: var(--green); color: var(--green); }
   .player svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .player .pl { display: none; fill: currentColor; }
+  /* in Arabic the row runs right-to-left: "previous" sits on the right, so its chevron must point right and "next" must point left */
+  :root[dir="rtl"] .player [data-step] svg { transform: scaleX(-1); }
   .player .paused .pz { display: none; } .player .paused .pl { display: block; }
 
   .chap .reg { margin-top: 20px; }
