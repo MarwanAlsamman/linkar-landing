@@ -605,22 +605,71 @@ overlay(vp);
 const lazy = new IntersectionObserver(([e]) => { if (e.isIntersecting) { lazy.disconnect(); init().catch(err => { console.error(err); show.classList.add('ready'); }); } }, { rootMargin: '400px 0px' });
 lazy.observe(show);
 
-/* Remove the maker's badges from the sample model: yellow shields, wheel-cap and steering logos,
-   and the chrome prancing-horse emblems on the front grille and the tail. */
-function removeBadges(THREE, car) {
+/* Remove the maker's badges from the sample model without leaving holes or a raised logo:
+   - shield badges are repainted in the car's paint (a plain plate), wheel caps get the rim finish,
+     the steering-wheel logo goes dark;
+   - the chrome horse emblems (grille, tail) are deleted and each spot is covered by a smooth plate
+     that faces the same way where the body behind it is open (the tail). */
+function removeBadges(THREE, car, mats) {
   car.updateMatrixWorld(true);
-  car.traverse(o => { if (o.isMesh && (o.name === 'yellow_trim' || o.name.startsWith('centre') || o.name === 'steering_centre')) o.visible = false; });
-  const emblem = c => (Math.abs(c.x) < .07 && c.z < -2.14 && c.y > .2 && c.y < .4) || (Math.abs(c.x) < .11 && c.z > 1.87 && c.y > .78 && c.y < .97);
+  const dark = new THREE.MeshStandardMaterial({ color: 0x0b0d0f, roughness: .65, metalness: .2 });
+  car.traverse(o => {
+    if (!o.isMesh) return;
+    if (o.name === 'yellow_trim') o.material = mats.paint;
+    else if (o.name.startsWith('centre')) o.material = mats.rim;
+    else if (o.name === 'steering_centre') o.material = dark;
+  });
+  const regions = [
+    { test: c => Math.abs(c.x) < .07 && c.z < -2.14 && c.y > .2 && c.y < .4, mat: null, tris: [] },   // the grille panel behind is solid: no plate needed
+    { test: c => Math.abs(c.x) < .11 && c.z > 1.87 && c.y > .78 && c.y < .97, mat: mats.paint, tris: [] },
+  ];
+  const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3();
   for (const name of ['chrome', 'interior_dark']) {
     const m = car.getObjectByName(name);
     if (!m || !m.geometry.index) continue;
-    const pos = m.geometry.attributes.position, idx = m.geometry.index, v = new THREE.Vector3(), keep = [];
+    const pos = m.geometry.attributes.position, idx = m.geometry.index, keep = [];
+    let removed = false;
     for (let t = 0; t < idx.count; t += 3) {
-      const c = new THREE.Vector3();
-      for (let k = 0; k < 3; k++) c.add(v.fromBufferAttribute(pos, idx.getX(t + k)).applyMatrix4(m.matrixWorld));
-      if (!emblem(c.divideScalar(3))) keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
+      A.fromBufferAttribute(pos, idx.getX(t)).applyMatrix4(m.matrixWorld);
+      B.fromBufferAttribute(pos, idx.getX(t + 1)).applyMatrix4(m.matrixWorld);
+      C.fromBufferAttribute(pos, idx.getX(t + 2)).applyMatrix4(m.matrixWorld);
+      const c = new THREE.Vector3().add(A).add(B).add(C).divideScalar(3);
+      const r = regions.find(r => r.test(c));
+      if (r) { r.tris.push([A.clone(), B.clone(), C.clone()]); removed = true; }
+      else keep.push(idx.getX(t), idx.getX(t + 1), idx.getX(t + 2));
     }
-    m.geometry.setIndex(keep);
+    if (removed) m.geometry.setIndex(keep);
+  }
+  // one smooth cover plate per emblem, sized to the emblem and set at its base
+  const inv = new THREE.Matrix4().copy(car.matrixWorld).invert();
+  for (const r of regions) {
+    if (!r.tris.length || !r.mat) continue;
+    const n = new THREE.Vector3(), ctr = new THREE.Vector3(), e1 = new THREE.Vector3(), e2 = new THREE.Vector3();
+    let area = 0;
+    for (const [a, b, c] of r.tris) {
+      const cr = e1.subVectors(b, a).cross(e2.subVectors(c, a));
+      const w = cr.length() / 2; if (!w) continue;
+      // emblems face outwards (away from the car centre)
+      const tc = new THREE.Vector3().add(a).add(b).add(c).divideScalar(3);
+      cr.normalize(); if (cr.dot(tc) < 0) cr.negate();
+      n.addScaledVector(cr, w); ctr.addScaledVector(tc, w); area += w;
+    }
+    if (!area) continue;
+    n.normalize(); ctr.divideScalar(area);
+    const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), n);
+    const u = new THREE.Vector3(1, 0, 0).applyQuaternion(q), v = new THREE.Vector3(0, 1, 0).applyQuaternion(q);
+    let minU = 1e9, maxU = -1e9, minV = 1e9, maxV = -1e9, minN = 1e9;
+    for (const tri of r.tris) for (const p of tri) {
+      const d = p.clone().sub(ctr);
+      minU = Math.min(minU, d.dot(u)); maxU = Math.max(maxU, d.dot(u));
+      minV = Math.min(minV, d.dot(v)); maxV = Math.max(maxV, d.dot(v)); minN = Math.min(minN, d.dot(n));
+    }
+    const plate = new THREE.Mesh(new THREE.CircleGeometry(.5, 40), r.mat);
+    const mid = ctr.clone().addScaledVector(u, (minU + maxU) / 2).addScaledVector(v, (minV + maxV) / 2).addScaledVector(n, minN + .004);
+    plate.position.copy(mid.applyMatrix4(inv));
+    plate.quaternion.copy(q);
+    plate.scale.set((maxU - minU) * 1.12, (maxV - minV) * 1.12, 1);
+    car.add(plate);
   }
 }
 
@@ -681,18 +730,20 @@ async function init() {
         totalEmissiveRadiance += vec3(.6,.85,1.) * exp(-abs(dzW) * 22.) * uWashEdge;`);
   };
   const detailsMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 1, roughness: .4, envMapIntensity: .5 });
-  const GU = { uTintZ: { value: 3 }, uTintEdge: { value: 0 } };
+  const GU = { uTintZ: { value: 3 }, uTintEdge: { value: 0 }, uCarZ: { value: 0 } };
   const glassMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0, roughness: .03, transparent: true, envMapIntensity: .7, side: THREE.DoubleSide });
   glassMat.onBeforeCompile = sh => {
     Object.assign(sh.uniforms, GU);
     sh.vertexShader = 'varying vec3 vW;\n' + sh.vertexShader.replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\n vW = (modelMatrix * vec4(transformed, 1.0)).xyz;');
-    sh.fragmentShader = 'uniform float uTintZ, uTintEdge; varying vec3 vW;\n' + sh.fragmentShader
+    sh.fragmentShader = 'uniform float uTintZ, uTintEdge, uCarZ; varying vec3 vW;\n' + sh.fragmentShader
       .replace('#include <color_fragment>', `#include <color_fragment>
-        float tinted = smoothstep(-.02, .02, vW.z - uTintZ);           // film goes on from the front
+        float rel = vW.z - uCarZ;                                              // position along the car (front = +z)
+        float screen = step(.7, vW.y) * step(.15, rel) * step(rel, 1.25);     // windscreen only: headlamp covers, tail lamps and rear panes stay clear
+        float tinted = screen * smoothstep(-.02, .02, rel - uTintZ);          // the film goes on from the bottom of the windscreen up
         diffuseColor.rgb = mix(vec3(.75,.85,.9), vec3(.005,.006,.008), tinted);
         diffuseColor.a = mix(.12, .97, tinted);`)
       .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
-        totalEmissiveRadiance += vec3(.55,1.,0.) * exp(-abs(vW.z - uTintZ) * 40.) * uTintEdge * 1.6;`);
+        totalEmissiveRadiance += vec3(.55,1.,0.) * exp(-abs(vW.z - uCarZ - uTintZ) * 40.) * uTintEdge * 1.6 * step(.7, vW.y) * step(.15, vW.z - uCarZ) * step(vW.z - uCarZ, 1.25);`);
   };
 
   // wash gantry + light spray
@@ -775,7 +826,7 @@ async function init() {
   await new Promise((res, rej) => new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/gltf/'))
     .load(MODEL + 'ferrari.glb', g => {
       const car = g.scene.children[0];
-      removeBadges(THREE, car);
+      removeBadges(THREE, car, { paint: bodyMat, rim: detailsMat });
       car.rotation.y = Math.PI;
       bodyMesh = car.getObjectByName('body'); bodyMesh.material = bodyMat;
       ['rim_fl', 'rim_fr', 'rim_rr', 'rim_rl', 'trim'].forEach(n => car.getObjectByName(n).material = detailsMat);
@@ -814,7 +865,7 @@ async function init() {
 
   const cur = camAt(vp), up = new THREE.Vector3(0, 1, 0), pos = new THREE.Vector3(), tgt = new THREE.Vector3(), fwd = new THREE.Vector3(), right = new THREE.Vector3();
   const ray = new THREE.Raycaster(), down = new THREE.Vector3(0, -1, 0), yAxis = new THREE.Vector3(0, 1, 0), rayO = new THREE.Vector3();
-  let last = 0, t = 0, tintT = 0;
+  let last = 0, t = 0, tintStart = 0;
   const FRAME = 1000 / 40;                      // cap at ~40 fps: smooth enough, much lighter on laptops and phones
   function loop(now) {
     requestAnimationFrame(loop);
@@ -854,9 +905,10 @@ async function init() {
     SU.uTime.value = t;
     // 2 tint: time-based so the clear "before" glass is seen first, then the film sweeps on
     const inTint = Math.floor(p) === 2;
-    tintT = inTint ? tintT + dt : 0;
+    if (!inTint) tintStart = 0; else if (!tintStart) tintStart = now;
+    const tintT = inTint ? (now - tintStart) / 1000 : 0;          // wall-clock, so slow frames don't stretch it
     const ts = p >= 3 ? 1 : smooth(clamp((tintT - .8) / 2.6));   // a short look at the clear glass, then the film sweeps on
-    GU.uTintZ.value = 2.3 - 4.6 * ts;
+    GU.uTintZ.value = 1.28 - 1.2 * ts; GU.uCarZ.value = carGroup.position.z;
     GU.uTintEdge.value = inTint ? Math.min(1, ts * 20, (1 - ts) * 20) : 0;
     // 3 polish: dull -> mirror, glint and sparkles
     const pol = smooth(p < 3 ? 0 : fxOf(p, 3));
